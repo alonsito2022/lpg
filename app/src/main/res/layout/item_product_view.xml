@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="3dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="4dp">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.15"/>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_v85"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.85"/>
+
+
+            <ImageView
+                android:id="@+id/cardPath"
+                android:layout_width="120dp"
+                android:layout_height="0dp"
+                android:background="@color/gray_100"
+                android:gravity="center"
+                app:layout_constraintBottom_toTopOf="@+id/guideline_h60"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_h60"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.60"/>
+
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_h80"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.80"/>
+
+            <TextView
+                android:id="@+id/cardProductName"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="BALON DE 10KG GOLDEN GAS"
+                android:textAlignment="center"
+                android:textColor="@color/purple_500"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toTopOf="@+id/guideline_h80"
+                app:layout_constraintEnd_toEndOf="@+id/guideline_v85"
+                app:layout_constraintStart_toStartOf="@+id/guideline_v15"
+                app:layout_constraintTop_toBottomOf="@+id/guideline_h60" />
+
+            <TextView
+                android:id="@+id/cardPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="S/ 10"
+                android:textColor="@color/black"
+
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="@+id/guideline_v85"
+                app:layout_constraintStart_toStartOf="@+id/guideline_v15"
+                app:layout_constraintTop_toBottomOf="@+id/guideline_h80" />
+
+            <TextView
+                android:id="@+id/cardStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stock: 20"
+                android:textColor="@color/gray_700"
+
+                android:textSize="10sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/guideline_v85"
+                app:layout_constraintStart_toStartOf="@+id/guideline_v15"
+                app:layout_constraintTop_toBottomOf="@+id/cardPrice" />
+
+            <TextView
+                android:id="@+id/cardUnitName"
+                style="@style/TextAppearance.AppCompat.Body2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="lleno"
+                android:textColor="@color/gray_700"
+                android:textSize="10sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline_v85" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

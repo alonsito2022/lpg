@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1057170340379",
+    "project_id": "deliveryapp-e121f",
+    "storage_bucket": "deliveryapp-e121f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1057170340379:android:64531ee57d3866935616be",
+        "android_client_info": {
+          "package_name": "com.example.driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1057170340379-j2mtnerl87k0mlactrk5qta9ikubikkv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.driver",
+            "certificate_hash": "3b19e95bdd34d1142bc1f77f118ecabe6b6eeea3"
+          }
+        },
+        {
+          "client_id": "1057170340379-eld0aq5lef8dpajsmlbl077tqv9pukjn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHl3Bgl10ZR35DP_oHmM9M4-STaT_rk3A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1057170340379-eld0aq5lef8dpajsmlbl077tqv9pukjn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
