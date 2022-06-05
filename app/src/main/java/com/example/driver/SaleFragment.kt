@@ -89,6 +89,7 @@ class SaleFragment : Fragment() {
 
     private lateinit var editTextMethodPrice: TextInputEditText
     private lateinit var editTextPaymentDate: TextInputEditText
+    private lateinit var editTextClientPhone: TextInputEditText
 
     private var brandSelected: String = "C"
     private var modalitySelected: String = "Refill"
@@ -175,6 +176,7 @@ class SaleFragment : Fragment() {
         editTextMethodPrice = view.findViewById(R.id.editTextMethodPrice)
         clientAutoCompleteView = view.findViewById(R.id.clientAutoCompleteView)
         autoCompleteMethodName = view.findViewById(R.id.autoCompleteMethodName)
+        editTextClientPhone = view.findViewById(R.id.editTextClientPhone)
         editTextPaymentDate = view.findViewById(R.id.editTextPaymentDate)
         editTextPaymentDate.setOnClickListener { showDatePickerDialog() }
         loadWayPay()
@@ -363,6 +365,8 @@ chipMaking(i.toString())
                             dispatch.clientID = model.id!!
                             dispatch.clientName = model.names
                             dispatch.clientPhone = model.phone
+
+                            editTextClientPhone.setText(model.phone)
 
                             if(model.addresses.size > 0){
                                 dispatch.addressID = model.addresses[0].id!!
@@ -772,6 +776,8 @@ chipMaking(i.toString())
         dispatch.dispatchDate = currentDate
         dispatch.identifier = currentDate2.replace("/", "") + "0102"
         dispatch.uid = dispatchReference.push().key!!
+
+        dispatch.clientPhone = editTextClientPhone.text.toString()
 
         dispatchReference.child(dispatch.uid).setValue(dispatch)
 

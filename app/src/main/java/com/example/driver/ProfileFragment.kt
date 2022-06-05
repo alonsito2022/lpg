@@ -72,8 +72,16 @@ class ProfileFragment : Fragment() {
                 phoneProfile.setText(driver.profile.phone)
                 vehicleLicensePlate.setText(driver.vehicleLicensePlate)
                 if(driver.distributionID > 0){
-                    hasDistribution.setText("CREADO A LAS: " + driver.distributionDatetime.substring(0,10))
-                    statusDistribution.setText(driver.distributionStatusDisplay + " | ID: " + driver.distributionID)
+                    var titleHasDistribution = "No tiene distribucion"
+                    var titleHasDistributionStatusDisplay = "No programada"
+                    if(driver.distributionDatetime.isNotEmpty()){
+                        titleHasDistribution = "CREADO A LAS: " + driver.distributionDatetime.substring(0,10)
+                    }
+                    if(driver.distributionStatusDisplay.isNotEmpty()){
+                        titleHasDistributionStatusDisplay = driver.distributionStatusDisplay + " | ID: " + driver.distributionID
+                    }
+                    hasDistribution.setText(titleHasDistribution)
+                    statusDistribution.setText(titleHasDistributionStatusDisplay)
                 }
 
             }

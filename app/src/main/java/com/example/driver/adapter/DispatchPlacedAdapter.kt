@@ -125,7 +125,7 @@ class DispatchPlacedAdapter(val c: Context, val dataSet: ArrayList<Dispatch>, pr
                                 .position(ny)
                                 .title(title)
 //                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_delivery_truck))
-                                .icon(bitMapFromVector(R.drawable.ic_baseline_my_location_24))
+//                                .icon(bitMapFromVector(R.drawable.ic_baseline_my_location_24))
                                 .snippet(snippet)
                             )
                             map.moveCamera(CameraUpdateFactory.newLatLng(ny))
