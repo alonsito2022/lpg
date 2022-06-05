@@ -29,4 +29,9 @@
         <item name="android:windowBackground">@drawable/splash_background</item>
         <item name="android:statusBarColor" tools:ignore="NewApi">@color/orange_700</item>
     </style>
+
+    <style name="datePickerTheme" parent="android:Theme.Material.Light.Dialog">
+        <item name="android:colorAccent">@color/purple_200</item>
+    </style>
+
 </resources>

@@ -13,9 +13,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.driver.Activity.HomeActivity
@@ -86,6 +88,7 @@ class SaleFragment : Fragment() {
     private lateinit var productListRecyclerView: RecyclerView
 
     private lateinit var editTextMethodPrice: TextInputEditText
+    private lateinit var editTextPaymentDate: TextInputEditText
 
     private var brandSelected: String = "C"
     private var modalitySelected: String = "Refill"
@@ -156,7 +159,6 @@ class SaleFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         layoutListItem = view.findViewById(R.id.layoutList)
         layoutPaymentList = view.findViewById(R.id.layoutPaymentList)
         btnAddPayment = view.findViewById(R.id.buttonAddPayment)
@@ -173,6 +175,8 @@ class SaleFragment : Fragment() {
         editTextMethodPrice = view.findViewById(R.id.editTextMethodPrice)
         clientAutoCompleteView = view.findViewById(R.id.clientAutoCompleteView)
         autoCompleteMethodName = view.findViewById(R.id.autoCompleteMethodName)
+        editTextPaymentDate = view.findViewById(R.id.editTextPaymentDate)
+        editTextPaymentDate.setOnClickListener { showDatePickerDialog() }
         loadWayPay()
 
         chipGroupBrand = view.findViewById(R.id.chipGroupBrand)
@@ -280,6 +284,24 @@ class SaleFragment : Fragment() {
 chipMaking(i.toString())
 }*/
 
+    }
+
+    private fun showDatePickerDialog(){
+        val fm: FragmentManager = (activity as AppCompatActivity?)!!.supportFragmentManager
+        val datePicker = DatePickerFragment {day, month, year -> onDateSelected(day, month, year) }
+        datePicker.show(fm, "datePicker")
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun onDateSelected(day:Int, month:Int, year:Int){
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month)
+        calendar.set(Calendar.DAY_OF_MONTH, day)
+        val sdf2 = SimpleDateFormat("dd/MM/yyyy").format(calendar.time)
+        val sdf3 = SimpleDateFormat("yyyy-MM-dd").format(calendar.time)
+        dispatch.paymentDate = sdf3
+        editTextPaymentDate.setText(sdf2)
     }
 
     private fun clearChipModality(){

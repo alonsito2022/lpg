@@ -17,6 +17,7 @@ class Dispatch() {
     var addressLatitude: Double = 0.0
     var addressLongitude: Double = 0.0
     var dispatchDate: String = ""
+    var paymentDate: String = ""
     var dispatchType: String = ""
     var distributionKey: String = ""
     var distributionID: Int = 0
