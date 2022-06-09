@@ -3,6 +3,7 @@ package com.example.driver
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
@@ -18,6 +19,8 @@ class DatePickerFragment(val listener: (day:Int, month:Int, year:Int) -> Unit): 
         val day = c.get(Calendar.DAY_OF_MONTH)
         val month = c.get(Calendar.MONTH)
         val year = c.get(Calendar.YEAR)
+//        val datePickerDialog = DatePickerDialog(activity as Context, R.style.datePickerTheme,this, year, month, day)
+//        datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(Color.GREEN)
         return DatePickerDialog(activity as Context, R.style.datePickerTheme,this, year, month, day)
     }
 
