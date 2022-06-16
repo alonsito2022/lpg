@@ -3,6 +3,7 @@ import com.example.driver.model.*
 import com.example.driver.rest.RequestDispatch
 import com.example.driver.rest.RequestDispatchDetail
 import com.example.driver.rest.ApiResponse
+import com.example.driver.rest.RequestPaymentMethod
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -53,6 +54,10 @@ interface ClientService {
     @POST("register_recovery_from_creditor/")
     @Headers("Accept: application/json", "Content-type:application/json")
     fun registerRecoveryFromCreditor(@Body params: Recovery): Call<ApiResponse>
+
+    @POST("get_sales_in_cash/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun getPaymentMethods(@Body params: Driver): Call<RequestPaymentMethod>
 
     companion object {
 

@@ -14,7 +14,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.driver.adapter.DispatchPlacedAdapter
 import com.example.driver.adapter.PaymentAdapter
 import com.example.driver.model.*
+import com.example.driver.rest.ApiResponse
+import com.example.driver.rest.RequestPaymentMethod
+import com.example.driver.retrofit.ClientService
 import com.google.firebase.database.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class PaymentFragment : Fragment() {
@@ -90,6 +96,7 @@ class PaymentFragment : Fragment() {
                 if(driver.distributionKey.isNotEmpty()){
                     getDistribution(driver.distributionKey)
                     getDistributionPayment(driver.distributionKey)
+                    getRestPaymentMethods()
                     getCreditor(driver.uid)
                 }
 
@@ -116,7 +123,38 @@ class PaymentFragment : Fragment() {
             }
         })
     }
+    private fun getRestPaymentMethods(){
+        Log.d("MIKE", "getRestPaymentMethods")
 
+        val apiInterface = ClientService.create().getPaymentMethods(driver)
+        apiInterface.enqueue(object : Callback<RequestPaymentMethod> {
+            override fun onResponse(call: Call<RequestPaymentMethod>, response: Response<RequestPaymentMethod>) {
+                Log.d("MIKE", response.isSuccessful.toString())
+                val responsePayment = response.body()!!
+                Log.d("MIKE", responsePayment.status)
+                textViewTotalPrice.text = "S/ ${responsePayment.sumTotalAmount}"
+                if(responsePayment.yape !== null){
+                    textViewYapePrice.text = "S/ ${responsePayment.yape}"
+                }
+                if(responsePayment.plin !== null){
+                    textViewPlinPrice.text = "S/ ${responsePayment.plin}"
+                }
+                if(responsePayment.cash !== null){
+                    textViewCashPrice.text = "S/ ${responsePayment.cash}"
+                }
+                if(responsePayment.credit !== null){
+                    textViewCreditPrice.text = "S/ ${responsePayment.credit}"
+                }
+            }
+
+            override fun onFailure(call: Call<RequestPaymentMethod>, t: Throwable) {
+                Log.d("MIKE", "getRestPaymentMethods onFailure: " + t.message.toString())
+            }
+
+        })
+
+
+    }
     private fun getDistributionPayment(distributionKey: String = ""){
 
         val distributionPaymentRef = paymentMethodReference.child("distributions").child(distributionKey)
@@ -134,20 +172,20 @@ class PaymentFragment : Fragment() {
                         payment = distributionPaymentSnapshot.getValue(Payment::class.java)!!
                     }*/
 
-                    textViewTotalPrice.text = "S/ ${payment.total}"
+//                    textViewTotalPrice.text = "S/ ${payment.total}"
 
-                    if(payment.wayPays["yape"] !== null){
-                        textViewYapePrice.text = "S/ ${payment.wayPays["yape"]}"
-                    }
-                    if(payment.wayPays["plin"] !== null){
-                        textViewPlinPrice.text = "S/ ${payment.wayPays["plin"]}"
-                    }
-                    if(payment.wayPays["cash"] !== null){
-                        textViewCashPrice.text = "S/ ${payment.wayPays["cash"]}"
-                    }
-                    if(payment.wayPays["credit"] !== null){
-                        textViewCreditPrice.text = "S/ ${payment.wayPays["credit"]}"
-                    }
+//                    if(payment.wayPays["yape"] !== null){
+//                        textViewYapePrice.text = "S/ ${payment.wayPays["yape"]}"
+//                    }
+//                    if(payment.wayPays["plin"] !== null){
+//                        textViewPlinPrice.text = "S/ ${payment.wayPays["plin"]}"
+//                    }
+//                    if(payment.wayPays["cash"] !== null){
+//                        textViewCashPrice.text = "S/ ${payment.wayPays["cash"]}"
+//                    }
+//                    if(payment.wayPays["credit"] !== null){
+//                        textViewCreditPrice.text = "S/ ${payment.wayPays["credit"]}"
+//                    }
 
                     recyclerViewDistributionPayment.layoutManager = LinearLayoutManager(activity)
                     recyclerViewDistributionPayment.setHasFixedSize(true)

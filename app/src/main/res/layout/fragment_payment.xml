@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Ventas"
+                android:text="Ventas Recientes"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -47,6 +47,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/recyclerViewDistributionPayment" />
 
+            <TextView
+                android:id="@+id/textViewPayment2"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Recaudación del dia"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dividerPayment1" />
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/ConstraintLayoutPaymentCash"
                 android:layout_width="match_parent"
@@ -54,7 +65,7 @@
                 android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dividerPayment1">
+                app:layout_constraintTop_toBottomOf="@+id/textViewPayment2">
 
 
                 <androidx.constraintlayout.widget.Guideline
