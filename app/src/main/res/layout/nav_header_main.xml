@@ -2,14 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/nav_header"
     android:layout_width="match_parent"
-    android:layout_height="170dp"
-    android:background="@color/purple_200"
+    android:layout_height="wrap_content"
+    android:background="@color/ic_launcher_background"
     android:focusable="true"
     android:clickable="true"
     android:foreground="?attr/selectableItemBackgroundBorderless"
     android:gravity="bottom"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:padding="8dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
@@ -38,6 +38,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="alex54@gmail.com"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+
+    <TextView
+        android:id="@+id/nav_header_license_plate_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ALX-485"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
 
 </LinearLayout>

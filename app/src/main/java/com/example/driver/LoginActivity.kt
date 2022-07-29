@@ -24,11 +24,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class LoginActivity : AppCompatActivity(), View.OnClickListener {
+class LoginActivity : AppCompatActivity() {
 
 //    var emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
-    lateinit var database : FirebaseDatabase
-    lateinit var databaseReference: DatabaseReference
 
     lateinit var preference: Preference
 
@@ -37,15 +35,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-        btn_all_ready_account.setOnClickListener(this)
-        btn_create_new_account.setOnClickListener(this)
-        btn_login.setOnClickListener(this)
-        btn_signup.setOnClickListener(this)
+        btn_login.setOnClickListener{ login() }
 
         preference = Preference(applicationContext)
-
-
 
         if(preference.getData("driverID") != ""){
 //            preference.clearPreference()
@@ -54,8 +46,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
             finish()
         }
 
-        database = FirebaseDatabase.getInstance()
-        databaseReference = database.getReference().child("drivers")
     }
 
     private fun notification(){
@@ -65,7 +55,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                 return@OnCompleteListener
             }
             val token = task.result
-//            showToast("token. $token")
             device.driverID = preference.getData("driverID").toInt()
             device.deviceToken = token
             device.deviceType = "A"
@@ -73,7 +62,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
             val apiInterface = ClientService.create().registerOrUpdateDevice(device)
             apiInterface.enqueue(object : Callback<ApiResponse> {
                 override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
-                    Log.d("MIKE", response.isSuccessful.toString())
                     val responseDevice = response.body()!!
                     Log.d("MIKE", responseDevice.status)
                 }
@@ -87,118 +75,49 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         })
     }
 
-    override fun onClick(p0: View?) {
-        when(p0){
-            btn_all_ready_account -> {
-                login_layout.visibility = View.VISIBLE
-                signup_layout.visibility = View.GONE
-            }
-            btn_create_new_account -> {
-                login_layout.visibility = View.GONE
-                signup_layout.visibility = View.VISIBLE
-            }
-            btn_login -> {
-                login()
-            }
-            btn_signup -> {
-                signUp()
-            }
-        }
-    }
-
     private fun login(){
-        var email = email_login.text.toString().trim()
-        var password = password_login.text.toString().trim()
+        val email = email_login.text.toString().trim()
+        val password = password_login.text.toString().trim()
         if(email.isEmpty() || password.isEmpty()){
             showToast("Todos los campos son requeridos")
         }else{
             if(isValidEmail(email)){
-                isEmailExist(email, password)
+                isEmailExist(Driver(email, password))
             }else{
                 showToast("Verifica tu email")
             }
         }
     }
 
-    private fun isEmailExist(email: String, password: String){
+    private fun isEmailExist(d: Driver){
 
-        val postListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
+        val apiInterface = ClientService.create().searchDriverByCredentials(d)
+        apiInterface.enqueue(object : Callback<Driver>{
+            override fun onResponse(call: Call<Driver>, response: Response<Driver>) {
 
-                var list = ArrayList<Driver>()
-                var isEmailExist = false
+                if (response.body() != null) {
+                    val driver: Driver = response.body()!!
 
-                for(uss in dataSnapshot.children){
-                    val value = uss.getValue(Driver::class.java)
-//                    Log.d("MIKE", value!!.email)
-//                    Log.d("MIKE", value.coordinates.latitude)
-                    if(value!!.email == email && value.password == password) {
-                        isEmailExist = true
-
-                        preference.saveData("name", value.profile.name)
-                        preference.saveData("phone", value.profile.phone)
-                        preference.saveData("path", value.profile.path)
-                        preference.saveData("vehicleKey", value.vehicleKey)
-                        preference.saveData("driverID", value.driverID.toString())
-                        preference.saveData("vehicleLicensePlate", value.vehicleLicensePlate)
-                        preference.saveData("email", value.email)
-                        preference.saveData("uid", value.uid)
-
+                    preference.saveData("driverID", driver.driverID.toString())
+                    preference.saveData("email", driver.email)
+                    preference.saveData("phone", driver.phone)
+                    preference.saveData("names", driver.names)
+                    preference.saveData("licensePlate", driver.vehicle.licensePlate)
+                    if(!driver.error){
+                        startActivity(Intent(applicationContext, HomeActivity::class.java))
+                        finish()
+                    }else{
+                        showToast("Login failed! verifica tus credenciales")
                     }
-                    list.add(value!!)
                 }
-
-                if(isEmailExist){
-                    //showToast("Login successfull")
-                    startActivity(Intent(applicationContext, HomeActivity::class.java))
-                    finish()
-                }else{
-                    showToast("Login failed! verifica tus credenciales")
-                }
-
             }
 
-            override fun onCancelled(databaseError: DatabaseError) {
-                // Getting Post failed, log a message
-                showToast(databaseError.toException().toString())
+            override fun onFailure(call: Call<Driver>, t: Throwable) {
+                Log.d("MIKE", "isEmailExist onFailure: " + t.message.toString())
             }
-        }
-        databaseReference.addValueEventListener(postListener)
-    }
 
-    private fun signUp(){
-        var name = name_signup.text.toString().trim()
-        var email = email_signup.text.toString().trim()
-        var phone = phone_signup.text.toString().trim()
-        var password = password_signup.text.toString().trim()
-        var confirmPassword = confirm_password_signup.text.toString().trim()
+        })
 
-        if(name.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()){
-            showToast("Todos los campos son requeridos.")
-        }else{
-            if(isValidEmail(email)){
-
-                var uid = databaseReference.push().key
-                var profile = Profile(name, phone, "", "", "")
-                var model = Driver(uid!!, email, phone, profile)
-
-                databaseReference.child(uid!!).setValue(model)
-                showToast("Registrado con exito.")
-
-                preference.saveData("name", name)
-                preference.saveData("email", email)
-                preference.saveData("phone", phone)
-                preference.saveData("path", "")
-                preference.saveData("uid", uid)
-
-                startActivity(Intent(applicationContext, HomeActivity::class.java))
-                finish()
-
-
-            }else{
-                showToast("Verifica tu email.")
-            }
-        }
     }
 
     private fun isValidEmail(email: String): Boolean{

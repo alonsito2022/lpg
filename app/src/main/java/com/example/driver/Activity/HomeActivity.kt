@@ -41,79 +41,14 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var preference: Preference
 
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private lateinit var locationRequest: LocationRequest
-    private lateinit var locationCallback: LocationCallback
-
-    lateinit var database : FirebaseDatabase
-    lateinit var databaseReference: DatabaseReference
-
-
     var driver : Driver = Driver()
 
-    var filledStock: Map<String, Vehicle.Stock.StockProduct> = mapOf()
-    var voidStock: Map<String, Vehicle.Stock.StockProduct> = mapOf()
-
-    companion object {
-        private const val CAMERA_PERMISSION_CODE = 100
-        private const val LOCATION_PERMISSION_CODE = 101
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
         preference = Preference(applicationContext)
-
-//        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
-//        locationRequest = LocationRequest.create().apply {
-//            interval = TimeUnit.SECONDS.toMillis(20)
-//            fastestInterval = TimeUnit.SECONDS.toMillis(10)
-//            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-////            maxWaitTime= TimeUnit.MINUTES.toMillis(2)
-//        }
-
-//        locationCallback = object : LocationCallback() {
-//            override fun onLocationResult(locationResult: LocationResult) {
-//                super.onLocationResult(locationResult)
-//                val currentLocation = locationResult.lastLocation
-//
-//                if(preference.getData("uid") != ""){
-//                    database = FirebaseDatabase.getInstance()
-//                    databaseReference = database.getReference().child("drivers").child(preference.getData("uid"))
-//                    val locationLogging = Coordinate(currentLocation.latitude, currentLocation.longitude)
-//                    databaseReference.child("coordinates").setValue(locationLogging)
-//                        .addOnSuccessListener {
-//                            Log.d("MIKE", "Locations written into the database: $locationLogging")
-//                        }
-//                        .addOnFailureListener {
-//                            Toast.makeText(applicationContext, "Error occured while writing the locations", Toast.LENGTH_LONG).show()
-//                        }
-//                }
-//
-//            }
-//        }
-
-//        if (ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.ACCESS_FINE_LOCATION
-//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.ACCESS_COARSE_LOCATION
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//
-//            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_CODE)
-//            Log.d("MIKE", "if checkSelfPermission")
-//            // finish()
-//        }
-//        else{
-//            Log.d("MIKE", "else checkSelfPermission")
-//        }
-
-//        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
-
         drawerLayout = findViewById(R.id.drawer_layout)
         navView = findViewById(R.id.nav_view)
 
@@ -121,25 +56,24 @@ class HomeActivity : AppCompatActivity() {
         val nameTv: TextView = hView.findViewById(R.id.nav_header_name_textView)
         val phoneTv: TextView = hView.findViewById(R.id.nav_header_phone_textView)
         val emailTv: TextView = hView.findViewById(R.id.nav_header_email_textView)
-        val imgVw: ImageView = hView.findViewById(R.id.nav_header_imageView)
+        val licensePlateTv: TextView = hView.findViewById(R.id.nav_header_license_plate_textView)
+//        val imgVw: ImageView = hView.findViewById(R.id.nav_header_imageView)
 
-        val driverKey = preference.getData("uid")
+        val driverID = preference.getData("driverID")
 
-        if(driverKey.isNotEmpty()){
+        if(driverID.isNotEmpty()){
 
-            nameTv.setText(preference.getData("name"))
-            phoneTv.setText(preference.getData("phone"))
-            emailTv.setText(preference.getData("email"))
-            Picasso.get().load(preference.getData("path")).into(imgVw)
+            nameTv.text = preference.getData("names")
+            phoneTv.text = preference.getData("phone")
+            emailTv.text = preference.getData("email")
+            licensePlateTv.text = preference.getData("licensePlate")
+//            Picasso.get().load(preference.getData("path")).into(imgVw)
         }
         toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        getDriver(driverKey)
 
         navViewListener = NavigationView.OnNavigationItemSelectedListener {
             unCheckAllMenuItems()
@@ -164,12 +98,10 @@ class HomeActivity : AppCompatActivity() {
 
         val hasNotification: String = intent.extras?.get("notification").toString()
 
-        Log.d("MIKE", "hasNotification: $hasNotification")
-
         if(hasNotification != "null"){
             goToOrderAssignmentFragment()
         }else if(savedInstanceState == null){
-            val itemSelected = navView.getMenu().getItem(4).subMenu.getItem(0)
+            val itemSelected = navView.menu.getItem(4).subMenu.getItem(0)
             navViewListener.onNavigationItemSelected(itemSelected)
         }
 
@@ -192,27 +124,27 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun goToOrderAssignmentFragment(){
-        val itemSelected = navView.getMenu().getItem(3).subMenu.getItem(1)
+        val itemSelected = navView.menu.getItem(3).subMenu.getItem(1)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
     fun goToOrderPlacedFragment(){
-        val itemSelected = navView.getMenu().getItem(3).subMenu.getItem(2)
+        val itemSelected = navView.menu.getItem(3).subMenu.getItem(2)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
     fun goToSaleFragment(){
-        val itemSelected = navView.getMenu().getItem(0)
+        val itemSelected = navView.menu.getItem(0)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
     fun goToProfileFragment(){
-        val itemSelected = navView.getMenu().getItem(4).subMenu.getItem(0)
+        val itemSelected = navView.menu.getItem(4).subMenu.getItem(0)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
     fun goToRecoveryFragment(){
-        val itemSelected = navView.getMenu().getItem(2)
+        val itemSelected = navView.menu.getItem(2)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
@@ -221,11 +153,11 @@ class HomeActivity : AppCompatActivity() {
         val fragmentTransaction = fragmentManager.beginTransaction()
         val bundle = Bundle()
         // bundle.putSerializable("list", filledStock)
-        bundle.putInt("driverID", driver.driverID)
-        bundle.putInt("distributionID", driver.distributionID)
-        bundle.putString("vehicleKey", preference.getData("vehicleKey"))
-        bundle.putString("driverKey", preference.getData("uid"))
-        Log.d("MIKE", driver.vehicleKey)
+        bundle.putInt("driverID", preference.getData("driverID").toInt())
+//        bundle.putInt("distributionID", driver.distributionID)
+//        bundle.putString("vehicleKey", preference.getData("vehicleKey"))
+//        bundle.putString("driverKey", preference.getData("uid"))
+//        Log.d("MIKE", driver.vehicleKey)
         fragment.arguments = bundle
         fragmentTransaction.replace(R.id.frame_layout, fragment)
         fragmentTransaction.commit()
@@ -234,12 +166,12 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun toggleDisableMenu(status: Boolean){
-        navView.getMenu().getItem(0).isEnabled = status
-        navView.getMenu().getItem(1).isEnabled = status
-        navView.getMenu().getItem(2).isEnabled = status
-        navView.getMenu().getItem(3).subMenu.getItem(0).isEnabled = status
-        navView.getMenu().getItem(3).subMenu.getItem(1).isEnabled = status
-        navView.getMenu().getItem(3).subMenu.getItem(2).isEnabled = status
+        navView.menu.getItem(0).isEnabled = status
+        navView.menu.getItem(1).isEnabled = status
+        navView.menu.getItem(2).isEnabled = status
+        navView.menu.getItem(3).subMenu.getItem(0).isEnabled = status
+        navView.menu.getItem(3).subMenu.getItem(1).isEnabled = status
+        navView.menu.getItem(3).subMenu.getItem(2).isEnabled = status
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -247,53 +179,6 @@ class HomeActivity : AppCompatActivity() {
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == LOCATION_PERMISSION_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Location Permission Granted", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Location Permission Denied", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-        }
-    }
-
-
-    private fun getDriver(driverKey: String = ""){
-
-        database = FirebaseDatabase.getInstance()
-        databaseReference = database.getReference("drivers")
-        val driverRef = databaseReference.orderByKey().equalTo(driverKey)
-        driverRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-
-                // driver = Driver()
-
-                for (driverSnapshot in snapshot.children){
-                    driver = driverSnapshot.getValue(Driver::class.java)!!
-                    Log.d("MIKE", driver.toString())
-                }
-
-                if(driver.distributionID > 0){
-                    if (driver.distributionStatusDisplay == "PROGRAMADO"){
-                        toggleDisableMenu(true)
-                    }else{
-                        toggleDisableMenu(false)
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
-            }
-        })
     }
 
 }

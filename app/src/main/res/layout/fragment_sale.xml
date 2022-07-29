@@ -34,7 +34,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Ingresa nombre"
+                android:hint="Ingresa nombre (min. 3 caracteres)"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -44,6 +44,7 @@
                     android:id="@+id/clientAutoCompleteView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="50dp"
                     android:paddingStart="16dp"
                     android:imeOptions="actionNext"
                     android:singleLine="true"
@@ -53,6 +54,41 @@
                />
 
             </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/btnSearchClient"
+                android:layout_width="50dp"
+                android:layout_height="70dp"
+                android:backgroundTint="@color/purple_500"
+                android:layout_marginTop="3dp"
+                app:icon="@drawable/ic_baseline_search_24"
+                app:iconTint="@color/white"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:layout_constraintTop_toTopOf="@+id/clientAutoCompleteViewTextInputLayout"
+                app:layout_constraintBottom_toBottomOf="@+id/clientAutoCompleteViewTextInputLayout"
+                app:layout_constraintEnd_toEndOf="@+id/clientAutoCompleteViewTextInputLayout" />
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutClientPhone"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Telefono del cliente"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clientAutoCompleteViewTextInputLayout"
+                app:endIconMode="clear_text">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextClientPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+
 
             <TextView
                 android:id="@+id/textViewBrand"
@@ -65,7 +101,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/clientAutoCompleteViewTextInputLayout" />
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayoutClientPhone" />
 
 
             <com.google.android.material.chip.ChipGroup
@@ -96,6 +132,47 @@
             </com.google.android.material.chip.ChipGroup>
 
             <TextView
+                android:id="@+id/textViewCategory"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="Seleccione categoria"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chipGroupBrand" />
+
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                app:checkedChip="@id/chipCategory1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewCategory" >
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCategory1"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Balon de gas" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCategory2"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Otros" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <TextView
                 android:id="@+id/textViewModality"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="match_parent"
@@ -107,7 +184,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/chipGroupBrand" />
+                app:layout_constraintTop_toBottomOf="@+id/chipGroupCategory" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupModality"
@@ -316,14 +393,37 @@
 
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutYapeTime"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Hora del yapeo"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayoutPaymentMethod"
+                app:endIconMode="clear_text">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextYapeTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="date"
+                    android:clickable="false"
+                    android:focusable="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayoutPaymentDate"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:hint="Fecha de pago"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/constraintLayoutPaymentMethod"
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayoutYapeTime"
                 app:endIconMode="clear_text">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -333,24 +433,6 @@
                     android:inputType="date"
                     android:clickable="false"
                     android:focusable="false"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayoutClientPhone"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:hint="Telefono del cliente"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayoutPaymentDate"
-                app:endIconMode="clear_text">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextClientPhone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="phone"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -365,7 +447,7 @@
 
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayoutClientPhone">
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayoutPaymentDate">
 
             </LinearLayout>
 

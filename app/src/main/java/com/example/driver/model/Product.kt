@@ -31,6 +31,7 @@ class Product() {
     class Presentation(){
         var price: Double = 0.0
         var unit: String = ""
+        var unitName: String = ""
 
         @Exclude var quantityFilled: Int = 0
         @Exclude var quantityVoid: Int = 0

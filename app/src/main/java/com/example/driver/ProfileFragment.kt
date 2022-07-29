@@ -9,36 +9,30 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.driver.Activity.HomeActivity
 import com.example.driver.model.Driver
+import com.example.driver.retrofit.ClientService
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.database.*
-
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ProfileFragment : Fragment() {
 
     private var globalContext: Context? = null
-
-    lateinit var database: FirebaseDatabase
-    private lateinit var driverReference: DatabaseReference
-
-    private var driver : Driver = Driver()
-    private var driverKey: String = ""
+    private var driverID: Int = 0
 
     private lateinit var nameProfile: TextInputEditText
     private lateinit var phoneProfile: TextInputEditText
     private lateinit var vehicleLicensePlate: TextInputEditText
-    private lateinit var hasDistribution: TextInputEditText
-    private lateinit var statusDistribution: TextInputEditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         globalContext = this.activity
-        database = FirebaseDatabase.getInstance()
-        driverReference = database.getReference("drivers")
 
         val bundle = arguments
-        driverKey = bundle!!.getString("driverKey").toString()
+        driverID = bundle!!.getInt("driverID")
 
-        getDriver(driverKey)
+        getDriver(driverID)
 
     }
 
@@ -54,41 +48,27 @@ class ProfileFragment : Fragment() {
         nameProfile = view.findViewById(R.id.nameProfile)
         phoneProfile = view.findViewById(R.id.phoneProfile)
         vehicleLicensePlate = view.findViewById(R.id.vehicleLicensePlate)
-        hasDistribution = view.findViewById(R.id.hasDistribution)
-        statusDistribution = view.findViewById(R.id.statusDistribution)
 
     }
 
-    private fun getDriver(driverKey: String = ""){
+    private fun getDriver(id: Int = 0){
 
-        val driverRef = driverReference.orderByKey().equalTo(driverKey)
-        driverRef.addValueEventListener(object : ValueEventListener {
-
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (driverSnapshot in snapshot.children){
-                    driver = driverSnapshot.getValue(Driver::class.java)!!
+        val apiInterface = ClientService.create().searchDriverByID(Driver(id))
+        apiInterface.enqueue(object : Callback<Driver>{
+            override fun onResponse(call: Call<Driver>, response: Response<Driver>) {
+                if (response.body() != null) {
+                    val driver: Driver = response.body()!!
+                    nameProfile.setText(driver.names)
+                    phoneProfile.setText(driver.phone)
+                    vehicleLicensePlate.setText(driver.vehicle.licensePlate)
                 }
-                nameProfile.setText(driver.profile.name)
-                phoneProfile.setText(driver.profile.phone)
-                vehicleLicensePlate.setText(driver.vehicleLicensePlate)
-                if(driver.distributionID > 0){
-                    var titleHasDistribution = "No tiene distribucion"
-                    var titleHasDistributionStatusDisplay = "No programada"
-                    if(driver.distributionDatetime.isNotEmpty()){
-                        titleHasDistribution = "CREADO A LAS: " + driver.distributionDatetime.substring(0,10)
-                    }
-                    if(driver.distributionStatusDisplay.isNotEmpty()){
-                        titleHasDistributionStatusDisplay = driver.distributionStatusDisplay + " | ID: " + driver.distributionID
-                    }
-                    hasDistribution.setText(titleHasDistribution)
-                    statusDistribution.setText(titleHasDistributionStatusDisplay)
-                }
-
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
+            override fun onFailure(call: Call<Driver>, t: Throwable) {
+                Log.d("MIKE", "getDriver onFailure: " + t.message.toString())
             }
+
         })
+
     }
 }

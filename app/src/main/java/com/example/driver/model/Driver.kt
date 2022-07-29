@@ -1,17 +1,10 @@
 package com.example.driver.model
-import com.google.firebase.database.PropertyName
 
 class Driver() {
-    @get:PropertyName("Uid")
-    @set:PropertyName("Uid")
+
     var uid: String = ""
-    val available: Boolean = false
     lateinit var coordinates: Coordinate
-    var email: String = ""
-    @get:PropertyName("is_online")
-    @set:PropertyName("is_online")
-    var isOnline: Boolean = false
-    lateinit var password: String
+
     var profile: Profile = Profile()
 
     var distributionKey: String = ""
@@ -19,19 +12,71 @@ class Driver() {
     var vehicleLicensePlate: String = ""
 
     var distributionID: Int = 0
-    var driverID: Int = 0
+
     var distributionDatetime: String = ""
     var distributionStatusDisplay: String = ""
 
-    constructor(
-        uid: String,
-        email: String,
-        password: String,
-        profile: Profile
-    ) : this() {
-        this.uid = uid
+    var driverID: Int = 0
+    var names: String = ""
+    var phone: String = ""
+    var email: String = ""
+    var password: String = ""
+    var birthdate: String = ""
+    var available: Boolean = false
+
+    var vehicle : Vehicle = Vehicle()
+
+    var error: Boolean = false
+    var message: String = ""
+
+    constructor(id: Int) : this() {
+        this.driverID = id
+    }
+
+    constructor(email: String, password: String) : this() {
         this.email = email
         this.password = password
-        this.profile = profile
+    }
+
+    class Vehicle(){
+        var vehicleID: Int = 0
+        var licensePlate: String = ""
+        var odometer: String = ""
+        var distribution: Distribution = Distribution()
+        var stockRegular: MutableList<StockRegular> = mutableListOf()
+
+        class StockRegular(){
+            var productID: Int = 0
+            var productName: String = ""
+            var productPath: String = ""
+            var productBrand: String = "C"
+            var productCategory: String = "B"
+            var productValve: String = ""
+
+            var voidUnitID: Int = 0
+            var voidUnitName: String = ""
+            var voidStock: Int = 0
+
+            var filledUnitID: Int = 0
+            var filledUnitName: String = ""
+            var filledStock: Int = 0
+            var tariff: MutableList<Tariff> = mutableListOf()
+
+            var returnability: String = "R"
+
+            class Tariff(){
+                var presentationID: Int = 0
+                var unitID: Int = 0
+                var unitName: String = ""
+                var price: Double = 0.0
+            }
+        }
+
+        class Distribution(){
+            var distributionID: Int = 0
+            var distributionEntranceDatetime: String = ""
+            var distributionDepartureDatetime: String = ""
+            var distributionStatus: String = ""
+        }
     }
 }

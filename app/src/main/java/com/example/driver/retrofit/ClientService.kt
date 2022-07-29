@@ -15,7 +15,7 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun getClientsAndAddresses() : Call<ArrayList<Client>>
 
-    @GET("search_clients_and_address/{text_match}")
+    @GET("commercial/api/v1/search_clients_and_address/{text_match}")
     @Headers("Accept: application/json", "Content-type:application/json")
     fun searchClientsAndAddresses(@Path("text_match") text_match: String?) : Call<ArrayList<Client>>
 
@@ -39,7 +39,7 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun createDispatchDetail(@Body params: RequestDispatchDetail): Call<RequestDispatchDetail>
 
-    @POST("register_dispatch/")
+    @POST("commercial/api/v1/register_dispatch/")
     @Headers("Accept: application/json", "Content-type:application/json")
     fun registerDispatch(@Body params: Dispatch): Call<ApiResponse>
 
@@ -47,7 +47,7 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun updateDispatch(@Body params: Dispatch): Call<ApiResponse>
 
-    @POST("register_or_update_device/")
+    @POST("commercial/api/v1/register_or_update_device/")
     @Headers("Accept: application/json", "Content-type:application/json")
     fun registerOrUpdateDevice(@Body params: Device): Call<ApiResponse>
 
@@ -59,11 +59,27 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun getPaymentMethods(@Body params: Driver): Call<RequestPaymentMethod>
 
+    @GET("get_products/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun getProducts(): Call<ArrayList<Product>>
+
+    @POST("get_inventory/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun getInventory(@Body params: Vehicle): Call<RequestPaymentMethod>
+
+    @POST("users/api/v2/search_driver_by_credentials/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun searchDriverByCredentials(@Body params: Driver): Call<Driver>
+
+    @POST("users/api/v2/search_driver_by_id/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun searchDriverByID(@Body params: Driver): Call<Driver>
+
     companion object {
 
 //        var BASE_URL = "https://38.242.197.197:9015/commercial/api/v1/"
-        var BASE_URL = "https://www.camotegas.ml/commercial/api/v1/"
-//        var BASE_URL = "http://192.168.236.111:9015/commercial/api/v1/"
+        // var BASE_URL = "https://www.camotegas.ml/commercial/api/v1/"
+        var BASE_URL = "http://192.168.1.22:8000/"
 //        var BASE_URL = "http://192.168.1.14:8000/commercial/api/v1/"
 //        var BASE_URL = "http://192.168.1.15:8000/commercial/api/v1/"
 

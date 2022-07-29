@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    app:cardElevation="4dp"
+    app:cardCornerRadius="3dp"
+    >
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:padding="4dp">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineFilledStock_v50"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineFilledStock_v70"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.7"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineFilledStock_v85"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.85"/>
+
+
+        <ImageView
+            android:id="@+id/cardCircle"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            android:gravity="center"
+            android:src="@mipmap/ic_launcher_foreground"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guidelineFilledStock_v50"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <TextView
+            android:id="@+id/cardProductTitle"
+            style="@style/TextAppearance.AppCompat.Body1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/lato"
+            android:paddingTop="32dp"
+            android:paddingBottom="32dp"
+            android:text="BALON DE 10KG GOLDEN GAS"
+            android:textColor="@color/gray_700"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/guidelineFilledStock_v50"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/cardFilledTitle"
+            style="@style/TextAppearance.AppCompat.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="LLENOS"
+            android:textColor="#3F51B5"
+            android:textSize="10sp"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guidelineFilledStock_v85"
+            app:layout_constraintStart_toStartOf="@+id/guidelineFilledStock_v70"
+            app:layout_constraintTop_toBottomOf="@+id/cardFilledStock" />
+
+        <TextView
+            android:id="@+id/cardVoidTitle"
+            style="@style/TextAppearance.AppCompat.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="VACIOS"
+            android:textColor="#E91E63"
+            android:textSize="10sp"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guidelineFilledStock_v85"
+            app:layout_constraintTop_toBottomOf="@+id/cardVoidStock" />
+
+        <TextView
+            android:id="@+id/cardVoidStock"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/white_circle_drawable"
+            android:backgroundTint="#E91E63"
+            android:gravity="center"
+            android:text="10"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guidelineFilledStock_v85"
+            app:layout_constraintTop_toBottomOf="@+id/cardProductTitle" />
+
+        <TextView
+            android:id="@+id/cardFilledStock"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/white_circle_drawable"
+            android:backgroundTint="#3F51B5"
+            android:gravity="center"
+            android:text="0"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@+id/guidelineFilledStock_v85"
+            app:layout_constraintStart_toStartOf="@+id/guidelineFilledStock_v70"
+            app:layout_constraintTop_toBottomOf="@+id/cardProductTitle" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

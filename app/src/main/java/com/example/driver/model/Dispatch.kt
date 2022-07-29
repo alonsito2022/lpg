@@ -18,6 +18,7 @@ class Dispatch() {
     var addressLongitude: Double = 0.0
     var dispatchDate: String = ""
     var paymentDate: String = ""
+    var yapeTime: String = ""
     var dispatchType: String = ""
     var distributionKey: String = ""
     var distributionID: Int = 0
@@ -43,6 +44,7 @@ class Dispatch() {
         var price: Double = 0.0
         var subtotal: Double = 0.0
         var unit: String = ""
+        var unitName: String = ""
         @Exclude var modality: String = "" // Recarga, Completo, Liquido Prestado, Fierro Prestado, Completo Prestado
         @Exclude var quantityMax: Int = 0
     }
