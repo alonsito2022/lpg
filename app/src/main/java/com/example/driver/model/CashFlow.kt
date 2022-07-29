@@ -1,0 +1,14 @@
+package com.example.driver.model
+
+class CashFlow() {
+    var cashFlowID: Int = 0
+    var cashID: Int = 0
+    var cashName: String = ""
+    var cashAccountCode: String = ""
+    var cashBalance: Double = 0.0
+    var description: String = ""
+    var transactionDate: String = ""
+    var type: String = "E"
+    var typeDisplay: String = ""
+    var total: Double = 0.0
+}

@@ -85,6 +85,8 @@ class HomeActivity : AppCompatActivity() {
                 R.id.nav_item_payments -> replaceFragment(PaymentFragment(), it.title.toString())
                 R.id.nav_item_order_assignment -> replaceFragment(OrderAssignmentFragment(), it.title.toString())
                 R.id.nav_item_order_placed -> replaceFragment(OrderPlacedFragment(), it.title.toString())
+                R.id.nav_item_cashes -> replaceFragment(CashFragment(), it.title.toString())
+                R.id.nav_item_locations -> replaceFragment(ProfileFragment(), it.title.toString())
                 R.id.nav_item_profile -> replaceFragment(ProfileFragment(), it.title.toString())
                 R.id.nav_item_exit -> {
                     preference.clearPreference()
@@ -114,7 +116,7 @@ class HomeActivity : AppCompatActivity() {
             when (i) {
                 in 0..2 -> navView.menu.getItem(i).isChecked = false
                 3 -> {
-                    for (j in 0..2){navView.menu.getItem(i).subMenu.getItem(j).isChecked = false}
+                    for (j in 0..4){navView.menu.getItem(i).subMenu.getItem(j).isChecked = false}
                 }
                 4 -> {
                     for (k in 0..1){navView.menu.getItem(i).subMenu.getItem(k).isChecked = false}

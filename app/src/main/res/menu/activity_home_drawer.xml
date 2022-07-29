@@ -33,6 +33,16 @@
                         android:id="@+id/nav_item_order_placed"
                         android:icon="@drawable/ic_baseline_assignment_turned_in_24"
                         android:title="Ventas realizadas" />
+
+                    <item
+                        android:id="@+id/nav_item_cashes"
+                        android:icon="@drawable/ic_baseline_point_of_sale_24"
+                        android:title="Caja" />
+
+                    <item
+                        android:id="@+id/nav_item_locations"
+                        android:icon="@drawable/ic_baseline_location_on_24"
+                        android:title="Localizar zona/direccion" />
                 </group>
 
             </menu>

@@ -75,6 +75,18 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun searchDriverByID(@Body params: Driver): Call<Driver>
 
+    @POST("accounting/api/v2/get_cashes/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun getCashes(@Body params: Driver) : Call<ArrayList<Cash>>
+
+    @POST("accounting/api/v2/get_cash_flow/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun getCashFlow(@Body params: CashFlow) : Call<ArrayList<CashFlow>>
+
+    @POST("accounting/api/v2/register_cash_flow/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun saveCashFlow(@Body params: CashFlow) : Call<ArrayList<CashFlow>>
+
     companion object {
 
 //        var BASE_URL = "https://38.242.197.197:9015/commercial/api/v1/"
