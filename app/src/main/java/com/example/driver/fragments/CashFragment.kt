@@ -1,4 +1,4 @@
-package com.example.driver
+package com.example.driver.fragments
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -21,6 +21,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.driver.DatePickerFragment
+import com.example.driver.R
 import com.example.driver.adapter.CashAdapter
 import com.example.driver.adapter.CashFlowAdapter
 import com.example.driver.model.CashFlow
@@ -233,7 +235,8 @@ class CashFragment : Fragment() {
         apiInterface.enqueue(object : Callback<ArrayList<Cash>> {
             override fun onResponse(call: Call<ArrayList<Cash>>, response: Response<ArrayList<Cash>>) {
                 listCashes = response.body()!!
-                autoCompleteCash.setAdapter(CashAdapter(globalContext!!, R.layout.item_cash_view, listCashes, object : CashAdapter.OnItemClickListener{
+                autoCompleteCash.setAdapter(CashAdapter(globalContext!!,
+                    R.layout.item_cash_view, listCashes, object : CashAdapter.OnItemClickListener{
                     override fun onItemClick(model: Cash) {
                         autoCompleteCash.setText(model.name)
                         autoCompleteCash.dismissDropDown()

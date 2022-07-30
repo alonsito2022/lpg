@@ -10,6 +10,9 @@ class Client() {
     var names: String = ""
     var phone: String = ""
     var addresses: ArrayList<Address> = arrayListOf()
+    var zone: Zone = Zone()
+    var createOrUpdate: String = "C"
+    var createOrUpdateAddress: Address = Address()
 
     class Address(){
         var id: Int? = null

@@ -1,4 +1,4 @@
-package com.example.driver
+package com.example.driver.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,10 +11,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.driver.adapter.DispatchPlacedAdapter
+import com.example.driver.R
 import com.example.driver.adapter.PaymentAdapter
 import com.example.driver.model.*
-import com.example.driver.rest.ApiResponse
 import com.example.driver.rest.RequestPaymentMethod
 import com.example.driver.retrofit.ClientService
 import com.google.firebase.database.*

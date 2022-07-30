@@ -1,23 +1,18 @@
-package com.example.driver
+package com.example.driver.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
-import android.view.View
 import android.widget.Toast
-import com.example.driver.Activity.HomeActivity
 import com.example.driver.LocalDatabase.Preference
+import com.example.driver.R
 import com.example.driver.model.Device
-import com.example.driver.model.Dispatch
 import com.example.driver.model.Driver
-import com.example.driver.model.Profile
 import com.example.driver.rest.ApiResponse
 import com.example.driver.retrofit.ClientService
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.database.*
-import com.google.firebase.iid.internal.FirebaseInstanceIdInternal
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.android.synthetic.main.activity_login.*
 import retrofit2.Call

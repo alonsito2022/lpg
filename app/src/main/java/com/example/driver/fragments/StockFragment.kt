@@ -1,4 +1,4 @@
-package com.example.driver
+package com.example.driver.fragments
 
 import android.content.Context
 import android.os.Bundle
@@ -9,10 +9,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.driver.R
 import com.example.driver.adapter.StockRegularAdapter
 import com.example.driver.model.Driver
 import com.example.driver.retrofit.ClientService
-import com.google.firebase.database.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

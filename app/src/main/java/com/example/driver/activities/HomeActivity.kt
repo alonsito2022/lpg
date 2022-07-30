@@ -1,35 +1,18 @@
-package com.example.driver.Activity
+package com.example.driver.activities
 
-import android.Manifest
-import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Looper
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import com.example.driver.*
 import com.example.driver.LocalDatabase.Preference
 import com.google.android.material.navigation.NavigationView
 import android.widget.TextView
-import androidx.core.app.ActivityCompat
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.driver.model.Coordinate
 import com.example.driver.R
-import com.example.driver.adapter.VehicleStockRegularFilledAdapter
-import com.example.driver.adapter.VehicleStockRegularVoidAdapter
+import com.example.driver.fragments.*
 import com.example.driver.model.Driver
-import com.example.driver.model.Vehicle
-import com.google.android.gms.location.*
-import com.google.firebase.database.*
-import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.fragment_stock.*
-import java.util.concurrent.TimeUnit
 
 
 class HomeActivity : AppCompatActivity() {
@@ -86,7 +69,7 @@ class HomeActivity : AppCompatActivity() {
                 R.id.nav_item_order_assignment -> replaceFragment(OrderAssignmentFragment(), it.title.toString())
                 R.id.nav_item_order_placed -> replaceFragment(OrderPlacedFragment(), it.title.toString())
                 R.id.nav_item_cashes -> replaceFragment(CashFragment(), it.title.toString())
-                R.id.nav_item_locations -> replaceFragment(ProfileFragment(), it.title.toString())
+                R.id.nav_item_locations -> replaceFragment(ZoneFragment(), it.title.toString())
                 R.id.nav_item_profile -> replaceFragment(ProfileFragment(), it.title.toString())
                 R.id.nav_item_exit -> {
                     preference.clearPreference()
@@ -132,6 +115,16 @@ class HomeActivity : AppCompatActivity() {
 
     fun goToOrderPlacedFragment(){
         val itemSelected = navView.menu.getItem(3).subMenu.getItem(2)
+        navViewListener.onNavigationItemSelected(itemSelected)
+    }
+
+    fun goToCashFragment(){
+        val itemSelected = navView.menu.getItem(3).subMenu.getItem(3)
+        navViewListener.onNavigationItemSelected(itemSelected)
+    }
+
+    fun goToZoneFragment(){
+        val itemSelected = navView.menu.getItem(3).subMenu.getItem(4)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 

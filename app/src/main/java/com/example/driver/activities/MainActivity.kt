@@ -1,7 +1,8 @@
-package com.example.driver
+package com.example.driver.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.driver.R
 
 class MainActivity : AppCompatActivity() {
 

@@ -1,13 +1,10 @@
-package com.example.driver
+package com.example.driver.fragments
 
 import android.annotation.SuppressLint
-import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -23,10 +20,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.driver.Activity.HomeActivity
+import com.example.driver.DatePickerFragment
+import com.example.driver.R
+import com.example.driver.activities.HomeActivity
 import com.example.driver.adapter.ClientAdapter
-import com.example.driver.adapter.ProductAdapter
-import com.example.driver.adapter.ProductAdapter.*
 import com.example.driver.adapter.SaleProductAdapter
 import com.example.driver.model.*
 import com.example.driver.rest.ApiResponse
@@ -37,7 +34,6 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.database.*
-import kotlinx.android.synthetic.main.dialog_view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -49,24 +45,12 @@ class SaleFragment : Fragment() {
 
     lateinit var database: FirebaseDatabase
 
-
-    private var filledStockMap: Map<String, Vehicle.Stock.StockProduct> = mapOf()
-    private var voidStockMap: Map<String, Vehicle.Stock.StockProduct> = mapOf()
     private var dispatchDetailMap: MutableList<Dispatch.DispatchDetail> = mutableListOf()
     private var paymentMethodList: MutableMap<String, Double> = mutableMapOf()
 
 
-
-    private var inventory: Inventory = Inventory()
-
-    private var distribution: Distribution = Distribution()
-    private var creditor: DriverAccount = DriverAccount()
     private var dispatch: Dispatch = Dispatch()
-    private var payment : Payment = Payment()
-    private var vehicle: Vehicle = Vehicle()
     private var driver : Driver = Driver()
-    private var vehicleKey: String = ""
-    private var driverKey: String = ""
     private var driverID: Int = 0
 
     private var globalContext: Context? = null
@@ -361,7 +345,8 @@ class SaleFragment : Fragment() {
                         Toast.makeText(globalContext, "Se encontraron ${list.size} resultado(s)", Toast.LENGTH_SHORT).show()
 
 
-                        val clientAdapter = ClientAdapter(globalContext!!, R.layout.default_layout, list, object : ClientAdapter.OnItemClickListener2 {
+                        val clientAdapter = ClientAdapter(globalContext!!,
+                            R.layout.default_layout, list, object : ClientAdapter.OnItemClickListener2 {
                             override fun onItemClick(model: Client?) {
                                 clientAutoCompleteView.setText(model!!.names)
                                 clientAutoCompleteView.dismissDropDown()
@@ -389,6 +374,8 @@ class SaleFragment : Fragment() {
 
                     }
                 }
+
+
 
                 override fun onFailure(
                     call: Call<ArrayList<Client>>?,

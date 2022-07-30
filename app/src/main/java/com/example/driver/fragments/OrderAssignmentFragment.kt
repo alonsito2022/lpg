@@ -1,4 +1,4 @@
-package com.example.driver
+package com.example.driver.fragments
 
 import android.app.AlertDialog
 import android.content.Context
@@ -11,7 +11,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.driver.Activity.HomeActivity
+import com.example.driver.R
+import com.example.driver.activities.HomeActivity
 import com.example.driver.adapter.DispatchDetailAdapter
 import com.example.driver.adapter.DispatchPlacedAdapter
 import com.example.driver.adapter.MethodPaymentAdapter

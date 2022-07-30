@@ -1,4 +1,4 @@
-package com.example.driver
+package com.example.driver.fragments
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -9,19 +9,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.driver.Activity.HomeActivity
+import com.example.driver.R
+import com.example.driver.activities.HomeActivity
 import com.example.driver.adapter.DispatchDetailAdapter
 import com.example.driver.adapter.DispatchPlacedAdapter
 import com.example.driver.adapter.MethodPaymentAdapter
-import com.example.driver.adapter.ProductAdapter
 import com.example.driver.model.Dispatch
 import com.example.driver.model.Driver
-import com.example.driver.model.Product
 import com.example.driver.model.Vehicle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.*

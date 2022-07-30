@@ -1,10 +1,11 @@
-package com.example.driver
+package com.example.driver.fragments
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.view.WindowManager
+import com.example.driver.R
+import com.example.driver.activities.LoginActivity
 
 @Suppress("DEPRECATION")
 class SplashActivity : AppCompatActivity() {
@@ -25,7 +26,7 @@ class SplashActivity : AppCompatActivity() {
         Handler().postDelayed({
             // This method will be executed once the timer is over
             // Start your app main activity
-            startActivity(Intent(this,LoginActivity::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
 
             // close this activity
             finish()

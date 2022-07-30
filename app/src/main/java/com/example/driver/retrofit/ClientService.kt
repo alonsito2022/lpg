@@ -15,6 +15,10 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun getClientsAndAddresses() : Call<ArrayList<Client>>
 
+    @GET("commercial/api/v1/get_zones/{text_match}")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun searchZones(@Path("text_match") text_match: String?) : Call<ArrayList<Zone>>
+
     @GET("commercial/api/v1/search_clients_and_address/{text_match}")
     @Headers("Accept: application/json", "Content-type:application/json")
     fun searchClientsAndAddresses(@Path("text_match") text_match: String?) : Call<ArrayList<Client>>
@@ -42,6 +46,10 @@ interface ClientService {
     @POST("commercial/api/v1/register_dispatch/")
     @Headers("Accept: application/json", "Content-type:application/json")
     fun registerDispatch(@Body params: Dispatch): Call<ApiResponse>
+
+    @POST("commercial/api/v2/register_address/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun registerClientAddress(@Body params: Client): Call<ApiResponse>
 
     @POST("update_dispatch_from_mobile/")
     @Headers("Accept: application/json", "Content-type:application/json")
