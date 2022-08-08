@@ -9,6 +9,7 @@ class Dispatch() {
     @set:PropertyName("Uid")
     @SerializedName("Uid")
     var uid: String = ""
+    var dispatchID: Int = 0
     var clientID: Int = 0
     var clientName: String = ""
     var clientPhone: String = ""

@@ -1,5 +1,6 @@
 package com.example.driver.fragments
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
@@ -8,17 +9,24 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.driver.DatePickerFragment
 import com.example.driver.R
 import com.example.driver.activities.HomeActivity
 import com.example.driver.adapter.DispatchDetailAdapter
 import com.example.driver.adapter.DispatchPlacedAdapter
 import com.example.driver.adapter.MethodPaymentAdapter
+import com.example.driver.adapter.SaleProductAdapter
 import com.example.driver.model.*
 import com.example.driver.rest.ApiResponse
 import com.example.driver.retrofit.ClientService
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.database.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -39,8 +47,10 @@ class OrderAssignmentFragment : Fragment() {
     private lateinit var paymentMethodReference: DatabaseReference
     private lateinit var driverReference: DatabaseReference
 
-    private var filteredFilledMap: Map<String, Vehicle.Stock.StockProduct> = mapOf()
-    private var filteredVoidMap: Map<String, Vehicle.Stock.StockProduct> = mapOf()
+//    private var filteredFilledMap: Map<String, Vehicle.Stock.StockProduct> = mapOf()
+//    private var filteredVoidMap: Map<String, Vehicle.Stock.StockProduct> = mapOf()
+    private var filteredFilledMap: MutableList<Driver.Vehicle.StockRegular> = mutableListOf()
+    private var filteredVoidMap: MutableList<Driver.Vehicle.StockRegular> = mutableListOf()
 
     private var dispatch: Dispatch = Dispatch()
     private var vehicle: Vehicle = Vehicle()
@@ -58,6 +68,9 @@ class OrderAssignmentFragment : Fragment() {
     private lateinit var recyclerViewOrderCompleted: RecyclerView
     private lateinit var recyclerViewOrderAnnulled: RecyclerView
 
+    private lateinit var editTextSearchDate: TextInputEditText
+    private lateinit var btnSearch: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         globalContext = this.activity
@@ -74,13 +87,12 @@ class OrderAssignmentFragment : Fragment() {
         driverID = bundle.getInt("driverID")
         distributionID = bundle.getInt("distributionID")
 
-        getStock(vehicleKey)
-        getDriver(driverKey)
+        dispatch.driverID = bundle!!.getInt("driverID")
+        getDriver(dispatch.driverID)
 
-        loadDispatchesAssignment()
-        loadDispatchesOutForDelivery()
-        loadDispatchesCompleted()
-        loadDispatchesAnnulled()
+        // getStock(vehicleKey)
+
+
     }
 
     override fun onCreateView(
@@ -98,6 +110,45 @@ class OrderAssignmentFragment : Fragment() {
         recyclerViewOrderCompleted = view.findViewById(R.id.recyclerViewOrderCompleted)
         recyclerViewOrderAnnulled = view.findViewById(R.id.recyclerViewOrderAnnulled)
 
+        editTextSearchDate = view.findViewById(R.id.editTextSearchDate)
+        val sdf2 = SimpleDateFormat("dd/MM/yyyy").format(Date())
+        val sdf3 = SimpleDateFormat("yyyy-MM-dd").format(Date())
+        dispatch.dispatchDate = sdf3
+        editTextSearchDate.setText(sdf2)
+
+        editTextSearchDate.setOnClickListener { showDatePickerDialog() }
+
+        btnSearch = view.findViewById(R.id.btnSearch)
+        btnSearch.setOnClickListener{
+            if(editTextSearchDate.text.toString() != ""){
+                loadDispatchesAssignment()
+                loadDispatchesOutForDelivery()
+                loadDispatchesCompleted()
+                loadDispatchesAnnulled()
+            }
+
+            else
+                Toast.makeText(globalContext, "Elija fecha.", Toast.LENGTH_SHORT).show()
+        }
+
+    }
+
+    private fun showDatePickerDialog(){
+        val fm: FragmentManager = (activity as AppCompatActivity?)!!.supportFragmentManager
+        val datePicker = DatePickerFragment {day, month, year -> onDateSelected(day, month, year) }
+        datePicker.show(fm, "datePicker")
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun onDateSelected(day:Int, month:Int, year:Int){
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month)
+        calendar.set(Calendar.DAY_OF_MONTH, day)
+        val sdf2 = SimpleDateFormat("dd/MM/yyyy").format(calendar.time)
+        val sdf3 = SimpleDateFormat("yyyy-MM-dd").format(calendar.time)
+        dispatch.dispatchDate = sdf3
+        editTextSearchDate.setText(sdf2)
     }
 
     private fun addInfo(d: Dispatch) {
@@ -130,13 +181,14 @@ class OrderAssignmentFragment : Fragment() {
 
                     if(validateStock(d)){
                         d.status = "04"
-                        d.distributionID = driver.distributionID
+//                        d.distributionID = driver.distributionID
                         updateRestDispatch(d)
-                        val newIdentifier = "${d.identifier.subSequence(0,10)}04"
-                        dispatchReference.child(d.uid).child("distributionID").setValue(driver.distributionID)
-                        dispatchReference.child(d.uid).child("distributionKey").setValue(driver.distributionKey)
-                        dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
-                        dispatchReference.child(d.uid).child("status").setValue("04")
+                        btnSearch.callOnClick()
+//                        val newIdentifier = "${d.identifier.subSequence(0,10)}04"
+//                        dispatchReference.child(d.uid).child("distributionID").setValue(driver.distributionID)
+//                        dispatchReference.child(d.uid).child("distributionKey").setValue(driver.distributionKey)
+//                        dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
+//                        dispatchReference.child(d.uid).child("status").setValue("04")
                         Toast.makeText(globalContext, "Pedido en ruta", Toast.LENGTH_SHORT).show()
                     }
                     else{
@@ -147,21 +199,22 @@ class OrderAssignmentFragment : Fragment() {
                 "04" -> {  // EN RUTA -> DECREASE STOCK
                     if(validateStock(d)){
                         d.status = "02"
-                        d.dispatchType = "01"
-                        d.distributionID = distributionID
+//                        d.dispatchType = "01"
+//                        d.distributionID = distributionID
                         updateRestDispatch(d)
-                        val newIdentifier = "${d.identifier.subSequence(0,8)}0102"
+                        btnSearch.callOnClick()
+//                        val newIdentifier = "${d.identifier.subSequence(0,8)}0102"
 
                         // Firebase update
-                        dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
-                        dispatchReference.child(d.uid).child("dispatchType").setValue("01")
-                        dispatchReference.child(d.uid).child("status").setValue("02")
+//                        dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
+//                        dispatchReference.child(d.uid).child("dispatchType").setValue("01")
+//                        dispatchReference.child(d.uid).child("status").setValue("02")
 
-                        updateFirebasePaymentMethod(d)
-                        decreaseFirebaseFilledStock(d)
+//                        updateFirebasePaymentMethod(d)
+//                        decreaseFirebaseFilledStock(d)
 
                         Toast.makeText(globalContext, "Pedido completado", Toast.LENGTH_SHORT).show()
-                        (activity as HomeActivity).goToOrderPlacedFragment()
+//                        (activity as HomeActivity).goToOrderPlacedFragment()
                     }
                     else{
                         Toast.makeText(globalContext, "Stock insuficiente", Toast.LENGTH_SHORT).show()
@@ -176,18 +229,20 @@ class OrderAssignmentFragment : Fragment() {
                 "05" -> {
                     d.status = "03"
                     updateRestDispatch(d)
-                    val newIdentifier = "${d.identifier.subSequence(0,10)}03"
-                    dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
-                    dispatchReference.child(d.uid).child("status").setValue("03")
+                    btnSearch.callOnClick()
+//                    val newIdentifier = "${d.identifier.subSequence(0,10)}03"
+//                    dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
+//                    dispatchReference.child(d.uid).child("status").setValue("03")
                     Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
 
                 }
                 "04" -> {
                     d.status = "03"
                     updateRestDispatch(d)
-                    val newIdentifier = "${d.identifier.subSequence(0,10)}03"
-                    dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
-                    dispatchReference.child(d.uid).child("status").setValue("03")
+                    btnSearch.callOnClick()
+//                    val newIdentifier = "${d.identifier.subSequence(0,10)}03"
+//                    dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
+//                    dispatchReference.child(d.uid).child("status").setValue("03")
                     Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -200,8 +255,14 @@ class OrderAssignmentFragment : Fragment() {
 
     private fun validateStock(d: Dispatch): Boolean{
         var isValid: Boolean = true
-        d.details.forEach {
-            val filledProductExists = filteredFilledMap.filter { (_, value) -> value.productKey == it.productKey && value.quantity >= it.quantity }
+
+
+        d.details.forEach { detail ->
+            // && item.filledStock >= it.quantity
+
+            val filledProductExists = driver.vehicle.stockRegular.filter { item2 -> item2.productID == detail.productID && item2.filledStock >= detail.quantity }
+            // Log.d("MIKE", "detail productID: ${detail.productID}, ${detail.quantity}")
+
             if(filledProductExists.isEmpty()){
                 isValid = false
             }
@@ -263,7 +324,7 @@ class OrderAssignmentFragment : Fragment() {
         val filledRef = vehicleReference.child(vehicleKey).child("stock").child("regular").child("filled")
         val voidRef = vehicleReference.child(vehicleKey).child("stock").child("regular").child("void")
 
-        d.details.forEach {
+        /*d.details.forEach {
 
             filledRef.child(it.productKey).child("quantity").setValue(filteredFilledMap[it.productKey]!!.quantity - it.quantity)
 
@@ -288,164 +349,145 @@ class OrderAssignmentFragment : Fragment() {
 
                 }
             }
-        }
+        }*/
     }
 
     private fun loadDispatchesAssignment() {
+        dispatch.dispatchType = "04"
+        dispatch.status = "05"
 
-        val sdf2 = SimpleDateFormat("dd/MM/yyyy")
-        val currentDate2 = sdf2.format(Date())
-        val identifier = currentDate2.replace("/", "") + "0405"
-
-        dispatchReference.orderByChild("identifier").equalTo(identifier).addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val productArrayList = ArrayList<Dispatch>()
-
-                for (productSnapshot in snapshot.children) {
-                    val dispatchTemp = productSnapshot.getValue(Dispatch::class.java)!!
-                    productArrayList.add(dispatchTemp)
-                }
-                val filterProductArrayList = productArrayList.filter { it -> it.driverID == driverID }
-                Log.d("MIKE", "loadDispatchesAssignment: ${filterProductArrayList.size}")
-                recyclerViewOrderAssignment.layoutManager = LinearLayoutManager(activity)
-                recyclerViewOrderAssignment.setHasFixedSize(true)
-                recyclerViewOrderAssignment.adapter = DispatchPlacedAdapter(
-                    globalContext!!,
-                    filterProductArrayList as ArrayList<Dispatch>,
-                    object : DispatchPlacedAdapter.OnItemClickListener {
-                        override fun onItemClick(model: Dispatch) {
-                            addInfo(model)
+        val apiInterface = ClientService.create().getDispatchesByDate(dispatch)
+        apiInterface.enqueue(object : Callback<ArrayList<Dispatch>> {
+            override fun onResponse(
+                call: Call<ArrayList<Dispatch>>,
+                response: Response<ArrayList<Dispatch>>
+            ) {
+                var listDispatches = arrayListOf<Dispatch>()
+                if (response.body() != null) {
+                    listDispatches = response.body()!!
+                    recyclerViewOrderAssignment.layoutManager = LinearLayoutManager(activity)
+                    recyclerViewOrderAssignment.setHasFixedSize(true)
+                    recyclerViewOrderAssignment.adapter = DispatchPlacedAdapter(
+                        globalContext!!,
+                        listDispatches,
+                        object : DispatchPlacedAdapter.OnItemClickListener {
+                            override fun onItemClick(model: Dispatch) {
+                                addInfo(model)
+                            }
                         }
-                    }
-                )
-
-
+                    )
+                }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
+            override fun onFailure(call: Call<ArrayList<Dispatch>>, t: Throwable) {
+                Log.d("MIKE", "loadCashFlows. Algo salio mal..." + t.message.toString())
             }
-
         })
+
     }
 
     private fun loadDispatchesOutForDelivery() {
+        dispatch.dispatchType = "04"
+        dispatch.status = "04"
 
-        val sdf2 = SimpleDateFormat("dd/MM/yyyy")
-        val currentDate2 = sdf2.format(Date())
-        val identifier = currentDate2.replace("/", "") + "0404"
-
-        dispatchReference.orderByChild("identifier").equalTo(identifier).addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val productArrayList = ArrayList<Dispatch>()
-
-                for (productSnapshot in snapshot.children) {
-                    val dispatchTemp = productSnapshot.getValue(Dispatch::class.java)!!
-                    productArrayList.add(dispatchTemp)
-                }
-                val filterProductArrayList = productArrayList.filter { it -> it.driverID == driverID }
-                Log.d("MIKE", "loadDispatchesOutForDelivery: ${filterProductArrayList.size}")
-                recyclerViewOrderOutForDelivery.layoutManager = LinearLayoutManager(activity)
-                recyclerViewOrderOutForDelivery.setHasFixedSize(true)
-                recyclerViewOrderOutForDelivery.adapter = DispatchPlacedAdapter(
-                    globalContext!!,
-                    filterProductArrayList as ArrayList<Dispatch>,
-                    object : DispatchPlacedAdapter.OnItemClickListener {
-                        override fun onItemClick(model: Dispatch) {
-                            addInfo(model)
+        val apiInterface = ClientService.create().getDispatchesByDate(dispatch)
+        apiInterface.enqueue(object : Callback<ArrayList<Dispatch>> {
+            override fun onResponse(
+                call: Call<ArrayList<Dispatch>>,
+                response: Response<ArrayList<Dispatch>>
+            ) {
+                var listDispatches = arrayListOf<Dispatch>()
+                if (response.body() != null) {
+                    listDispatches = response.body()!!
+                    recyclerViewOrderOutForDelivery.layoutManager = LinearLayoutManager(activity)
+                    recyclerViewOrderOutForDelivery.setHasFixedSize(true)
+                    recyclerViewOrderOutForDelivery.adapter = DispatchPlacedAdapter(
+                        globalContext!!,
+                        listDispatches,
+                        object : DispatchPlacedAdapter.OnItemClickListener {
+                            override fun onItemClick(model: Dispatch) {
+                                addInfo(model)
+                            }
                         }
-                    }
-                )
-
-
+                    )
+                }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
+            override fun onFailure(call: Call<ArrayList<Dispatch>>, t: Throwable) {
+                Log.d("MIKE", "loadCashFlows. Algo salio mal..." + t.message.toString())
             }
-
         })
+
     }
 
     private fun loadDispatchesCompleted() {
 
-        val sdf2 = SimpleDateFormat("dd/MM/yyyy")
-        val currentDate2 = sdf2.format(Date())
-        val identifier = currentDate2.replace("/", "") + "0402"
+        dispatch.dispatchType = "04"
+        dispatch.status = "02"
 
-        dispatchReference.orderByChild("identifier").equalTo(identifier).addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val productArrayList = ArrayList<Dispatch>()
-                if (snapshot.exists()) {
-                    for (productSnapshot in snapshot.children) {
-                        val dispatchTemp = productSnapshot.getValue(Dispatch::class.java)!!
-                        productArrayList.add(dispatchTemp)
-                    }
-                    val filterProductArrayList = productArrayList.filter { it -> it.driverID == driverID }
-                    Log.d("MIKE", "loadDispatchesCompleted: ${filterProductArrayList.size}")
+        val apiInterface = ClientService.create().getDispatchesByDate(dispatch)
+        apiInterface.enqueue(object : Callback<ArrayList<Dispatch>> {
+            override fun onResponse(
+                call: Call<ArrayList<Dispatch>>,
+                response: Response<ArrayList<Dispatch>>
+            ) {
+                var listDispatches = arrayListOf<Dispatch>()
+                if (response.body() != null) {
+                    listDispatches = response.body()!!
                     recyclerViewOrderCompleted.layoutManager = LinearLayoutManager(activity)
                     recyclerViewOrderCompleted.setHasFixedSize(true)
                     recyclerViewOrderCompleted.adapter = DispatchPlacedAdapter(
                         globalContext!!,
-                        filterProductArrayList as ArrayList<Dispatch>,
+                        listDispatches,
                         object : DispatchPlacedAdapter.OnItemClickListener {
                             override fun onItemClick(model: Dispatch) {
                                 addInfo(model)
                             }
                         }
                     )
-
                 }
-
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
+            override fun onFailure(call: Call<ArrayList<Dispatch>>, t: Throwable) {
+                Log.d("MIKE", "loadCashFlows. Algo salio mal..." + t.message.toString())
             }
-
         })
+
+
     }
 
     private fun loadDispatchesAnnulled() {
 
-        val sdf2 = SimpleDateFormat("dd/MM/yyyy")
-        val currentDate2 = sdf2.format(Date())
-        val identifier = currentDate2.replace("/", "") + "0403"
+        dispatch.dispatchType = "04"
+        dispatch.status = "03"
 
-        dispatchReference.orderByChild("identifier").equalTo(identifier).addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val productArrayList = ArrayList<Dispatch>()
-                if (snapshot.exists()) {
-                    for (productSnapshot in snapshot.children) {
-                        val dispatchTemp = productSnapshot.getValue(Dispatch::class.java)!!
-                        productArrayList.add(dispatchTemp)
-                    }
-                    val filterProductArrayList = productArrayList.filter { it -> it.driverID == driverID }
-                    Log.d("MIKE", "loadDispatchesCompleted: ${filterProductArrayList.size}")
+        val apiInterface = ClientService.create().getDispatchesByDate(dispatch)
+        apiInterface.enqueue(object : Callback<ArrayList<Dispatch>> {
+            override fun onResponse(
+                call: Call<ArrayList<Dispatch>>,
+                response: Response<ArrayList<Dispatch>>
+            ) {
+                var listDispatches = arrayListOf<Dispatch>()
+                if (response.body() != null) {
+                    listDispatches = response.body()!!
                     recyclerViewOrderAnnulled.layoutManager = LinearLayoutManager(activity)
                     recyclerViewOrderAnnulled.setHasFixedSize(true)
                     recyclerViewOrderAnnulled.adapter = DispatchPlacedAdapter(
                         globalContext!!,
-                        filterProductArrayList as ArrayList<Dispatch>,
+                        listDispatches,
                         object : DispatchPlacedAdapter.OnItemClickListener {
                             override fun onItemClick(model: Dispatch) {
                                 addInfo(model)
                             }
                         }
                     )
-
                 }
-
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
+            override fun onFailure(call: Call<ArrayList<Dispatch>>, t: Throwable) {
+                Log.d("MIKE", "loadCashFlows. Algo salio mal..." + t.message.toString())
             }
-
         })
+
     }
 
-    private fun getStock(vehicleKey: String = ""){
+    /*private fun getStock(vehicleKey: String = ""){
 
         val vehicleRef = vehicleReference.orderByKey().equalTo(vehicleKey)
         vehicleRef.addValueEventListener(object : ValueEventListener{
@@ -469,9 +511,32 @@ class OrderAssignmentFragment : Fragment() {
             }
 
         })
+    }*/
+
+
+    private fun getDriver(id: Int = 0){
+
+        val apiInterface = ClientService.create().searchDriverByID(Driver(id))
+        apiInterface.enqueue(object : Callback<Driver>{
+            override fun onResponse(call: Call<Driver>, response: Response<Driver>) {
+                if (response.body() != null) {
+                    driver = response.body()!!
+
+                    // val filterProductArrayList = driver.vehicle.stockRegular as MutableList<Driver.Vehicle.StockRegular>
+
+                    // btnRegisterDispatch.isEnabled = driver.vehicle.distribution.distributionStatus == "P"
+                }
+            }
+
+            override fun onFailure(call: Call<Driver>, t: Throwable) {
+                Log.d("MIKE", "getDriver onFailure: " + t.message.toString())
+            }
+
+        })
+
     }
 
-    private fun getDriver(driverKey: String = ""){
+    /*private fun getDriver(driverKey: String = ""){
 
         val driverRef = driverReference.orderByKey().equalTo(driverKey)
         driverRef.addValueEventListener(object : ValueEventListener {
@@ -492,9 +557,9 @@ class OrderAssignmentFragment : Fragment() {
                 Log.d("MIKE", error.toException().toString())
             }
         })
-    }
+    }*/
 
-    private fun getDistribution(distributionKey: String = ""){
+    /*private fun getDistribution(distributionKey: String = ""){
 
         val distributionRef = distributionReference.orderByKey().equalTo(distributionKey)
         distributionRef.addValueEventListener(object : ValueEventListener {
@@ -509,9 +574,9 @@ class OrderAssignmentFragment : Fragment() {
                 Log.d("MIKE", error.toException().toString())
             }
         })
-    }
+    }*/
 
-    private fun getDistributionPayment(distributionKey: String = ""){
+    /*private fun getDistributionPayment(distributionKey: String = ""){
 
         val distributionPaymentRef = paymentMethodReference.child("distributions").child(distributionKey)
         distributionPaymentRef.addValueEventListener(object : ValueEventListener {
@@ -527,7 +592,7 @@ class OrderAssignmentFragment : Fragment() {
                 Log.d("MIKE", error.toException().toString())
             }
         })
-    }
+    }*/
 
 
 }

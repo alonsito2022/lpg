@@ -9,19 +9,30 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.driver.DatePickerFragment
 import com.example.driver.R
 import com.example.driver.activities.HomeActivity
+import com.example.driver.adapter.CashFlowAdapter
 import com.example.driver.adapter.DispatchDetailAdapter
 import com.example.driver.adapter.DispatchPlacedAdapter
 import com.example.driver.adapter.MethodPaymentAdapter
+import com.example.driver.model.CashFlow
 import com.example.driver.model.Dispatch
 import com.example.driver.model.Driver
 import com.example.driver.model.Vehicle
+import com.example.driver.retrofit.ClientService
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.database.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -31,17 +42,11 @@ class OrderPlacedFragment : Fragment() {
 
     private var globalContext: Context? = null
 
-    lateinit var database: FirebaseDatabase
-    private lateinit var dispatchReference: DatabaseReference
-    private lateinit var distributionReference: DatabaseReference
-
     private var dispatch: Dispatch = Dispatch()
-    private var vehicle: Vehicle = Vehicle()
-    private var driver : Driver = Driver()
-    private var vehicleKey: String = ""
-    private var driverKey: String = ""
-    private var driverID: Int = 0
+    private var listDispatches = arrayListOf<Dispatch>()
 
+    private lateinit var editTextSearchDate: TextInputEditText
+    private lateinit var btnSearch: Button
     private lateinit var recyclerViewOrderPlaced: RecyclerView
     private lateinit var recyclerViewDispatchMethodPayment: RecyclerView
     private lateinit var fab: FloatingActionButton
@@ -49,16 +54,12 @@ class OrderPlacedFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         globalContext = this.activity
-        database = FirebaseDatabase.getInstance()
-        dispatchReference = database.getReference("dispatches")
-        distributionReference = database.getReference("distributions")
 
         val bundle = arguments
-        vehicleKey = bundle!!.getString("vehicleKey").toString()
-        driverKey = bundle.getString("driverKey").toString()
-        driverID = bundle.getInt("driverID")
+        dispatch.driverID = bundle!!.getInt("driverID")
+        dispatch.dispatchType = "01"
+        dispatch.status = "02"
 
-        loadDispatches()
     }
 
     override fun onCreateView(
@@ -72,7 +73,21 @@ class OrderPlacedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerViewOrderPlaced = view.findViewById(R.id.recyclerViewOrderPlaced)
+        editTextSearchDate = view.findViewById(R.id.editTextSearchDate)
+        val sdf2 = SimpleDateFormat("dd/MM/yyyy").format(Date())
+        val sdf3 = SimpleDateFormat("yyyy-MM-dd").format(Date())
+        dispatch.dispatchDate = sdf3
+        editTextSearchDate.setText(sdf2)
 
+        editTextSearchDate.setOnClickListener { showDatePickerDialog() }
+
+        btnSearch = view.findViewById(R.id.btnSearch)
+        btnSearch.setOnClickListener{
+            if(editTextSearchDate.text.toString() != "")
+                loadDispatches()
+            else
+                Toast.makeText(globalContext, "Elija caja.", Toast.LENGTH_SHORT).show()
+        }
         fab = view.findViewById(R.id.floatingActionButtonNewDispatch)
         fab.setOnClickListener { goToFragment() }
     }
@@ -108,25 +123,19 @@ class OrderPlacedFragment : Fragment() {
 
     @SuppressLint("SimpleDateFormat")
     private fun loadDispatches() {
-        val sdf2 = SimpleDateFormat("dd/MM/yyyy")
-        val currentDate2 = sdf2.format(Date())
-        val identifier = currentDate2.replace("/", "") + "0102"
-        dispatchReference.orderByChild("identifier").equalTo(identifier).addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val productArrayList = ArrayList<Dispatch>()
-
-                for (productSnapshot in snapshot.children) {
-                    val dispatchTemp = productSnapshot.getValue(Dispatch::class.java)!!
-                    productArrayList.add(dispatchTemp)
-                }
-                val filterProductArrayList = productArrayList.filter { it.driverID == driverID }
-                Log.d("MIKE", "loadDispatches: ${filterProductArrayList.size}")
-                if(productArrayList.isNotEmpty()){
+        val apiInterface = ClientService.create().getDispatchesByDate(dispatch)
+        apiInterface.enqueue(object : Callback<ArrayList<Dispatch>> {
+            override fun onResponse(
+                call: Call<ArrayList<Dispatch>>,
+                response: Response<ArrayList<Dispatch>>
+            ) {
+                if (response.body() != null) {
+                    listDispatches = response.body()!!
                     recyclerViewOrderPlaced.layoutManager = LinearLayoutManager(activity)
                     recyclerViewOrderPlaced.setHasFixedSize(true)
                     recyclerViewOrderPlaced.adapter = DispatchPlacedAdapter(
                         globalContext!!,
-                        filterProductArrayList as ArrayList<Dispatch>,
+                        listDispatches,
                         object : DispatchPlacedAdapter.OnItemClickListener {
                             override fun onItemClick(model: Dispatch) {
                                 addInfo(model)
@@ -135,11 +144,29 @@ class OrderPlacedFragment : Fragment() {
                     )
                 }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
+            override fun onFailure(call: Call<ArrayList<Dispatch>>, t: Throwable) {
+                Log.d("MIKE", "loadCashFlows. Algo salio mal..." + t.message.toString())
             }
-
         })
+
     }
+
+    private fun showDatePickerDialog(){
+        val fm: FragmentManager = (activity as AppCompatActivity?)!!.supportFragmentManager
+        val datePicker = DatePickerFragment {day, month, year -> onDateSelected(day, month, year) }
+        datePicker.show(fm, "datePicker")
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun onDateSelected(day:Int, month:Int, year:Int){
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month)
+        calendar.set(Calendar.DAY_OF_MONTH, day)
+        val sdf2 = SimpleDateFormat("dd/MM/yyyy").format(calendar.time)
+        val sdf3 = SimpleDateFormat("yyyy-MM-dd").format(calendar.time)
+        dispatch.dispatchDate = sdf3
+        editTextSearchDate.setText(sdf2)
+    }
+
 }

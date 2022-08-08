@@ -36,51 +36,26 @@ import java.util.*
 
 class RecoveryFragment : Fragment() {
 
-    lateinit var database: FirebaseDatabase
-    private lateinit var driverReference: DatabaseReference
-    private lateinit var vehicleReference: DatabaseReference
-    private lateinit var distributionReference: DatabaseReference
-    private lateinit var paymentMethodReference: DatabaseReference
-    private lateinit var dispatchReference: DatabaseReference
-    private lateinit var recoveryReference: DatabaseReference
-
-    private var vehicle: Vehicle = Vehicle()
     private var driver : Driver = Driver()
     private var productOwed: Debt.ProductOwed = Debt.ProductOwed()
     private var recoveryDetail: Recovery.RecoveryDetail = Recovery.RecoveryDetail()
     private var recovery: Recovery = Recovery()
-    private var payment : Payment = Payment()
 
-
-    private var vehicleKey: String = ""
-    private var driverKey: String = ""
     private var driverID: Int = 0
 
     private var globalContext: Context? = null
 
     private lateinit var recyclerViewDebtor: RecyclerView
     private var paymentMethodList: MutableMap<String, Double> = mutableMapOf()
-    private var filledStockMap: Map<String, Vehicle.Stock.StockProduct> = mapOf()
-    private var voidStockMap: Map<String, Vehicle.Stock.StockProduct> = mapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         globalContext = this.activity
-        database = FirebaseDatabase.getInstance()
-        driverReference = database.getReference("drivers")
-        vehicleReference = database.getReference("vehicles")
-        dispatchReference = database.getReference("dispatches")
-        recoveryReference = database.getReference("recoveries")
-        distributionReference = database.getReference("distributions")
-        paymentMethodReference = database.getReference("paymentMethods")
 
         val bundle = arguments
-        vehicleKey = bundle!!.getString("vehicleKey").toString()
-        driverKey = bundle.getString("driverKey").toString()
-        driverID = bundle.getInt("driverID")
+        driverID = bundle!!.getInt("driverID")
 
-        getFilledAndVoidStock(vehicleKey)
-        getDriver(driverKey)
+        getDriver(driverID)
         loadRestDebtors(driverID)
 
     }
@@ -302,14 +277,14 @@ class RecoveryFragment : Fragment() {
 
                     if(editTextRecoveryQuantity.text.toString().toInt() > 0 && editTextRecoveryQuantity.text.toString().toInt() <= recoveryDetail.quantity ){
                         saveRecovery()
-                        saveFirebasePaymentMethod()
+//                        saveFirebasePaymentMethod()
                         dialog.dismiss()
                     }
                 }
             }else if (recovery.concept == "02"){
                 if(editTextRecoveryQuantity.text.toString().toInt() > 0 && editTextRecoveryQuantity.text.toString().toInt() <= recoveryDetail.quantity){
                     saveRecovery()
-                    increaseFirebaseVoidStock()
+//                    increaseFirebaseVoidStock()
                     dialog.dismiss()
                 }
             }
@@ -387,8 +362,7 @@ class RecoveryFragment : Fragment() {
         val currentDate = sdf.format(Date())
         recovery.recoveryDate = currentDate
         recovery.details.add(recoveryDetail)
-        recovery.uid = recoveryReference.push().key!!
-        recoveryReference.child(recovery.uid).setValue(recovery)
+
         saveRestRecovery()
     }
 
@@ -405,127 +379,28 @@ class RecoveryFragment : Fragment() {
         })
     }
 
-    private fun increaseFirebaseVoidStock(){
 
-        val voidRef = vehicleReference.child(vehicleKey).child("stock").child("regular").child("void")
+    private fun getDriver(id: Int = 0){
 
-        recovery.details.forEach {
-
-            var voidProduct : Vehicle.Stock.StockProduct = Vehicle.Stock.StockProduct()
-
-            val voidProductExists = voidStockMap.filter { (key, _) -> key == it.productKey }
-
-            if(voidProductExists.isEmpty()){
-                voidProduct.productKey = it.productKey
-                voidProduct.productName = filledStockMap[it.productKey]!!.productName
-                voidProduct.productPath = filledStockMap[it.productKey]!!.productPath
-                voidProduct.quantity = it.quantity
-                voidProduct.unit = "B"
-                voidRef.child(it.productKey).setValue(voidProduct)
-            }
-            else{
-                voidProduct = voidStockMap[it.productKey]!!
-                voidRef.child(it.productKey).child("quantity").setValue(voidProduct.quantity + it.quantity)
-            }
-        }
-    }
-
-    private fun saveFirebasePaymentMethod(){
-        val paymentRef = paymentMethodReference.child("distributions").child(recovery.distributionKey)
-
-        val accumulatedDistYapeExists = payment.wayPays.filter { (key, _) -> key == "yape" }
-        val accumulatedDistPlinExists = payment.wayPays.filter { (key, _) -> key == "plin" }
-        val accumulatedDistCashExists = payment.wayPays.filter { (key, _) -> key == "cash" }
-        val accumulatedDistCreditExists = payment.wayPays.filter { (key, _) -> key == "credit" }
-        var accumulatedDistYape = 0.0
-        var accumulatedDistPlin = 0.0
-        var accumulatedDistCash = 0.0
-        var accumulatedDistCredit = 0.0
-        if (accumulatedDistYapeExists.isNotEmpty()){accumulatedDistYape= payment.wayPays["yape"]!!}
-        if (accumulatedDistPlinExists.isNotEmpty()){accumulatedDistPlin= payment.wayPays["plin"]!!}
-        if (accumulatedDistCashExists.isNotEmpty()){accumulatedDistCash= payment.wayPays["cash"]!!}
-        if (accumulatedDistCreditExists.isNotEmpty()){accumulatedDistCredit= payment.wayPays["credit"]!!}
-
-        paymentMethodList.forEach { (key, value) ->
-
-            when(key){
-                "yape" -> {paymentRef.child("wayPays").child(key).setValue(accumulatedDistYape + value)}
-                "plin" -> {paymentRef.child("wayPays").child(key).setValue(accumulatedDistPlin + value)}
-                "cash" -> {paymentRef.child("wayPays").child(key).setValue(accumulatedDistCash + value)}
-                "credit" -> {paymentRef.child("wayPays").child(key).setValue(accumulatedDistCredit + value)}
-            }
-
-            paymentRef.child("total").setValue(payment.total + value)
-        }
-
-        paymentRef.child("recoveries").child(recovery.uid).child("clientName").setValue(recovery.clientName)
-        paymentRef.child("recoveries").child(recovery.uid).child("recoveryDate").setValue(recovery.recoveryDate)
-        paymentRef.child("recoveries").child(recovery.uid).child("total").setValue(recovery.totalPrice)
-        paymentRef.child("recoveries").child(recovery.uid).child("amounts").setValue(recovery.paymentMethods)
-
-    }
-
-    private fun getFilledAndVoidStock(vehicleKey: String = "") {
-
-        val vehicleRef = vehicleReference.orderByKey().equalTo(vehicleKey)
-        vehicleRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-
-                if (snapshot.exists()) {
-                    for (vehicleSnapshot in snapshot.children) {
-                        vehicle = vehicleSnapshot.getValue(Vehicle::class.java)!!
-                    }
-
-                    val filledMap = vehicle.stock.regular.filled
-                    filledStockMap = filledMap.filter { (_, value) -> value.quantity > 0 }
-
-                    val voidMap = vehicle.stock.regular.void
-                    voidStockMap = voidMap.filter { (_, value) -> value.quantity >= 0 }
-
-                }
-
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
-            }
-
-        })
-    }
-
-    private fun getDriver(driverKey: String = ""){
-
-        val driverRef = driverReference.orderByKey().equalTo(driverKey)
-        driverRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (driverSnapshot in snapshot.children){
-                    driver = driverSnapshot.getValue(Driver::class.java)!!
-                }
-                if(driver.distributionKey.isNotEmpty()){
+        val apiInterface = ClientService.create().searchDriverByID(Driver(id))
+        apiInterface.enqueue(object : Callback<Driver>{
+            override fun onResponse(call: Call<Driver>, response: Response<Driver>) {
+                if (response.body() != null) {
+                    driver = response.body()!!
                     recovery.driverID = driver.driverID
-                    recovery.distributionID = driver.distributionID
-                    recovery.distributionKey = driver.distributionKey
-                    getDistributionPayment(recovery.distributionKey)
+
+                    // val filterProductArrayList = driver.vehicle.stockRegular as MutableList<Driver.Vehicle.StockRegular>
+                    // btnRegisterDispatch.isEnabled = driver.vehicle.distribution.distributionStatus == "P"
                 }
             }
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
+
+            override fun onFailure(call: Call<Driver>, t: Throwable) {
+                Log.d("MIKE", "getDriver onFailure: " + t.message.toString())
             }
+
         })
+
     }
 
-    private fun getDistributionPayment(distributionKey: String = ""){
 
-        val distributionPaymentRef = paymentMethodReference.child("distributions").child(distributionKey)
-        distributionPaymentRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.value !== null){
-                    payment = snapshot.getValue(Payment::class.java)!!
-                }
-            }
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
-            }
-        })
-    }
 }

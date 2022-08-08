@@ -27,7 +27,7 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun getDebtors(@Path("id") id: Int?) : Call<ArrayList<Client>>
 
-    @GET("get_debtors_with_debt_by_driver/{id}")
+    @GET("commercial/api/v1/get_debtors_with_debt_by_driver/{id}")
     @Headers("Accept: application/json", "Content-type:application/json")
     fun getDebtorsWithDebt(@Path("id") id: Int?) : Call<ArrayList<Debt>>
 
@@ -43,6 +43,7 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun createDispatchDetail(@Body params: RequestDispatchDetail): Call<RequestDispatchDetail>
 
+
     @POST("commercial/api/v1/register_dispatch/")
     @Headers("Accept: application/json", "Content-type:application/json")
     fun registerDispatch(@Body params: Dispatch): Call<ApiResponse>
@@ -51,7 +52,7 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun registerClientAddress(@Body params: Client): Call<ApiResponse>
 
-    @POST("update_dispatch_from_mobile/")
+    @POST("commercial/api/v1/update_dispatch_from_mobile/")
     @Headers("Accept: application/json", "Content-type:application/json")
     fun updateDispatch(@Body params: Dispatch): Call<ApiResponse>
 
@@ -59,7 +60,7 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun registerOrUpdateDevice(@Body params: Device): Call<ApiResponse>
 
-    @POST("register_recovery_from_creditor/")
+    @POST("commercial/api/v1/register_recovery_from_creditor/")
     @Headers("Accept: application/json", "Content-type:application/json")
     fun registerRecoveryFromCreditor(@Body params: Recovery): Call<ApiResponse>
 
@@ -95,11 +96,15 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun saveCashFlow(@Body params: CashFlow) : Call<ArrayList<CashFlow>>
 
+    @POST("commercial/api/v2/get_dispatches_by_date/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun getDispatchesByDate(@Body params: Dispatch): Call<ArrayList<Dispatch>>
+
     companion object {
 
 //        var BASE_URL = "https://38.242.197.197:9015/commercial/api/v1/"
-        // var BASE_URL = "https://www.camotegas.ml/commercial/api/v1/"
-        var BASE_URL = "http://192.168.1.22:8000/"
+         var BASE_URL = "https://www.camotegas.ml/"
+//        var BASE_URL = "http://192.168.1.22:8000/"
 //        var BASE_URL = "http://192.168.1.14:8000/commercial/api/v1/"
 //        var BASE_URL = "http://192.168.1.15:8000/commercial/api/v1/"
 
