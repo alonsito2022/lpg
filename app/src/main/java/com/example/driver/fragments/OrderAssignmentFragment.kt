@@ -5,24 +5,21 @@ import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.driver.DatePickerFragment
 import com.example.driver.R
-import com.example.driver.activities.HomeActivity
 import com.example.driver.adapter.DispatchDetailAdapter
 import com.example.driver.adapter.DispatchPlacedAdapter
 import com.example.driver.adapter.MethodPaymentAdapter
-import com.example.driver.adapter.SaleProductAdapter
 import com.example.driver.model.*
 import com.example.driver.rest.ApiResponse
 import com.example.driver.retrofit.ClientService
@@ -33,7 +30,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
+import android.os.CountDownTimer
 
 
 class OrderAssignmentFragment : Fragment() {
@@ -41,6 +38,7 @@ class OrderAssignmentFragment : Fragment() {
     private var globalContext: Context? = null
 
     lateinit var database: FirebaseDatabase
+    private lateinit var deliveryReference: DatabaseReference
     private lateinit var dispatchReference: DatabaseReference
     private lateinit var distributionReference: DatabaseReference
     private lateinit var vehicleReference: DatabaseReference
@@ -75,6 +73,7 @@ class OrderAssignmentFragment : Fragment() {
         super.onCreate(savedInstanceState)
         globalContext = this.activity
         database = FirebaseDatabase.getInstance()
+        deliveryReference = database.getReference("deliveries")
         dispatchReference = database.getReference("dispatches")
         distributionReference = database.getReference("distributions")
         vehicleReference = database.getReference("vehicles")
@@ -130,6 +129,8 @@ class OrderAssignmentFragment : Fragment() {
             else
                 Toast.makeText(globalContext, "Elija fecha.", Toast.LENGTH_SHORT).show()
         }
+
+        searchDeliveries()
 
     }
 
@@ -188,8 +189,40 @@ class OrderAssignmentFragment : Fragment() {
 //                        dispatchReference.child(d.uid).child("distributionID").setValue(driver.distributionID)
 //                        dispatchReference.child(d.uid).child("distributionKey").setValue(driver.distributionKey)
 //                        dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
-//                        dispatchReference.child(d.uid).child("status").setValue("04")
-                        Toast.makeText(globalContext, "Pedido en ruta", Toast.LENGTH_SHORT).show()
+
+                        val newValues = hashMapOf<String, Any>(
+                            "status" to "04",
+                            "statusBg" to "success",
+                            "dispatchStatusDisplay" to "EN RUTA"
+                        )
+                        deliveryReference.child(d.dispatchID.toString()).updateChildren(newValues)
+                            .addOnSuccessListener {
+                                println("Los valores se actualizaron correctamente.")
+                                Toast.makeText(globalContext, "Pedido en ruta", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { error ->
+                                println("Ocurrió un error al actualizar los valores: $error")
+                            }
+
+                        val duration = 900000  // 15 minutes
+                        val interval = 60000 // 1 minute
+
+                        val automaticWatch = object : CountDownTimer(
+                            duration.toLong(),
+                            interval.toLong()
+                        ) {
+                            override fun onTick(millisUntilFinished: Long) {
+                                deliveryReference.child(d.dispatchID.toString()).child("timer").setValue((millisUntilFinished / 60000).toInt())
+                            }
+
+                            override fun onFinish() {
+                                deliveryReference.child(d.dispatchID.toString()).child("timer").setValue(0)
+                            }
+                        }
+
+                        automaticWatch.start()
+
+
                     }
                     else{
                         Toast.makeText(globalContext, "Stock insuficiente", Toast.LENGTH_SHORT).show()
@@ -210,10 +243,24 @@ class OrderAssignmentFragment : Fragment() {
 //                        dispatchReference.child(d.uid).child("dispatchType").setValue("01")
 //                        dispatchReference.child(d.uid).child("status").setValue("02")
 
+//                        val newValues = hashMapOf<String, Any>(
+//                            "status" to "02",
+//                            "statusBg" to "secondary",
+//                            "dispatchStatusDisplay" to "COMPLETADO"
+//                        )
+                        deliveryReference.child(d.dispatchID.toString()).removeValue()
+                            .addOnSuccessListener {
+                                println("El nodo se eliminó correctamente.")
+                                Toast.makeText(globalContext, "Pedido completado", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { error ->
+                                println("Ocurrió un error al eliminar el nodo: $error")
+                            }
+
 //                        updateFirebasePaymentMethod(d)
 //                        decreaseFirebaseFilledStock(d)
 
-                        Toast.makeText(globalContext, "Pedido completado", Toast.LENGTH_SHORT).show()
+
 //                        (activity as HomeActivity).goToOrderPlacedFragment()
                     }
                     else{
@@ -233,7 +280,20 @@ class OrderAssignmentFragment : Fragment() {
 //                    val newIdentifier = "${d.identifier.subSequence(0,10)}03"
 //                    dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
 //                    dispatchReference.child(d.uid).child("status").setValue("03")
-                    Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
+
+//                    val newValues = hashMapOf<String, Any>(
+//                        "status" to "03",
+//                        "statusBg" to "danger",
+//                        "dispatchStatusDisplay" to "ANULADO"
+//                    )
+                    deliveryReference.child(d.dispatchID.toString()).removeValue()
+                        .addOnSuccessListener {
+                            println("El nodo se eliminó correctamente.")
+                            Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { error ->
+                            println("Ocurrió un error al eliminar el nodo: $error")
+                        }
 
                 }
                 "04" -> {
@@ -243,7 +303,20 @@ class OrderAssignmentFragment : Fragment() {
 //                    val newIdentifier = "${d.identifier.subSequence(0,10)}03"
 //                    dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
 //                    dispatchReference.child(d.uid).child("status").setValue("03")
-                    Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
+
+//                    val newValues = hashMapOf<String, Any>(
+//                        "status" to "03",
+//                        "statusBg" to "danger",
+//                        "dispatchStatusDisplay" to "ANULADO"
+//                    )
+                    deliveryReference.child(d.dispatchID.toString()).removeValue()
+                        .addOnSuccessListener {
+                            println("El nodo se eliminó correctamente.")
+                            Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { error ->
+                            println("Ocurrió un error al eliminar el nodo: $error")
+                        }
                 }
             }
 
@@ -485,6 +558,30 @@ class OrderAssignmentFragment : Fragment() {
             }
         })
 
+    }
+    private fun searchDeliveries(){
+        deliveryReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val productArrayList = ArrayList<Dispatch>()
+
+                for (productSnapshot in snapshot.children) {
+                    val dispatchTemp = productSnapshot.getValue(Dispatch::class.java)!!
+                    productArrayList.add(dispatchTemp)
+                }
+                val filterProductArrayList = productArrayList.filter { it.driverID == driverID }
+                Log.d("MIKE", "loadDispatches: ${filterProductArrayList.size}")
+                if(filterProductArrayList.isNotEmpty()){
+                    loadDispatchesAssignment()
+                    loadDispatchesOutForDelivery()
+                    loadDispatchesCompleted()
+                    loadDispatchesAnnulled()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("MIKE", error.toException().toString())
+            }
+        })
     }
 
     /*private fun getStock(vehicleKey: String = ""){

@@ -1,6 +1,8 @@
 package com.example.driver.fragments
 
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
@@ -11,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import com.example.driver.R
@@ -23,6 +26,8 @@ import com.example.driver.model.Driver
 import com.example.driver.model.Zone
 import com.example.driver.rest.ApiResponse
 import com.example.driver.retrofit.ClientService
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom
 import com.google.android.gms.maps.GoogleMap
@@ -57,15 +62,19 @@ class ZoneFragment : Fragment() , OnMapReadyCallback {
     private lateinit var autoCompleteChoiceAddress: AutoCompleteTextView
     private lateinit var editTextNewAddress: TextInputEditText
 
+    private lateinit var radioGroupClientCondition: RadioGroup
     private lateinit var radioGroupAddressStatus: RadioGroup
     private lateinit var radioButtonHasAddresses: RadioButton
     private lateinit var radioButtonNewAddress: RadioButton
+    private lateinit var radioButtonClientExists: RadioButton
+    private lateinit var radioButtonNewClient: RadioButton
 
     private lateinit var btnSaveAddress: Button
     private lateinit var btnSearchZone: Button
     private lateinit var zoneAutoCompleteView: MaterialAutoCompleteTextView
 
     private lateinit var mMap: GoogleMap
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,8 +82,28 @@ class ZoneFragment : Fragment() , OnMapReadyCallback {
 
         val bundle = arguments
         driver.driverID = bundle!!.getInt("driverID")
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(globalContext!!)
     }
+    private fun fetchLocation() {
+        val task= fusedLocationProviderClient.lastLocation
+        if(ActivityCompat.checkSelfPermission(globalContext!!, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(globalContext!!, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ){
+            ActivityCompat.requestPermissions(globalContext as Activity, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 101)
+            return
+        }
+        task.addOnSuccessListener {
+            if (it!=null){
+                Toast.makeText(globalContext, "lat ${it.latitude} ${it.longitude}", Toast.LENGTH_SHORT).show()
+                mMap.isMyLocationEnabled = true
+                mMap.uiSettings.isMyLocationButtonEnabled = true
+                textViewLatitude.text = it.latitude.toString()
+                textViewLongitude.text = it.longitude.toString()
+            }
+        }
 
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -103,6 +132,9 @@ class ZoneFragment : Fragment() , OnMapReadyCallback {
         radioGroupAddressStatus = view.findViewById(R.id.radioGroupAddressStatus)
         radioButtonHasAddresses = view.findViewById(R.id.radioButtonHasAddresses)
         radioButtonNewAddress = view.findViewById(R.id.radioButtonNewAddress)
+        radioGroupClientCondition = view.findViewById(R.id.radioGroupClientCondition)
+        radioButtonClientExists = view.findViewById(R.id.radioButtonClientExists)
+        radioButtonNewClient = view.findViewById(R.id.radioButtonNewClient)
         btnSaveAddress = view.findViewById(R.id.btnSaveAddress)
         btnSaveAddress.setOnClickListener{saveAddress()}
 
@@ -117,6 +149,19 @@ class ZoneFragment : Fragment() , OnMapReadyCallback {
                     textInputLayoutNewAddress.visibility = View.VISIBLE
                     textInputLayoutChoiceAddress.visibility = View.GONE
                     client.createOrUpdate = "C"
+                }
+                else -> {}
+            }
+        }
+        radioGroupClientCondition.setOnCheckedChangeListener{ _, checkedId ->
+            when (checkedId) {
+                R.id.radioButtonClientExists -> {
+                    client.createOrUpdate = "U"
+                }
+                R.id.radioButtonNewClient -> {
+                    client.id = null
+                    client.createOrUpdate = "C"
+                    radioButtonNewAddress.isChecked = true
                 }
                 else -> {}
             }
@@ -272,7 +317,10 @@ class ZoneFragment : Fragment() , OnMapReadyCallback {
         else
             client.createOrUpdateAddress.address = autoCompleteChoiceAddress.text.toString()
 
-        if (client.id != null){
+        client.names = editTextClientName.text.toString()
+        client.phone = editTextClientPhone.text.toString()
+
+//        if (client.id != null){
             val apiInterface = ClientService.create().registerClientAddress(client)
             apiInterface.enqueue(object : Callback<ApiResponse>{
                 override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
@@ -285,7 +333,7 @@ class ZoneFragment : Fragment() , OnMapReadyCallback {
                 }
 
             })
-        }
+//        }
     }
 
     private fun View.closeKeyBoard(inputMethodManager: InputMethodManager) {
@@ -308,6 +356,7 @@ class ZoneFragment : Fragment() , OnMapReadyCallback {
         mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
         val latLng = LatLng(-16.393409, -71.520795)
         addMarkerInMap(latLng, "P.t Miraflores Parcela F")
+        fetchLocation()
     }
 
     private fun addMarkerInMap(latLng: LatLng, titleText: String){

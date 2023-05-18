@@ -108,12 +108,12 @@ class CashFragment : Fragment() {
                 val editTextDescription = v.findViewById<EditText>(R.id.editTextDescription)
                 val editTextTotal = v.findViewById<EditText>(R.id.editTextTotal)
 
-                textViewCashName.text = cashFlow.cashName
+                textViewCashName.text = cashFlow.cashName + cashFlow.cashAccountCode
                 textViewCashBalance.text = cashFlow.cashBalance.toString()
 
 
                 when(cashFlow.cashAccountCode){
-                    "10111" -> {
+                    "101111" -> {
                         radioButtonEntrance.visibility = View.VISIBLE
                         radioButtonDeparture.visibility = View.VISIBLE
                         radioButtonEntrance.isChecked = true
@@ -127,7 +127,7 @@ class CashFragment : Fragment() {
                         cashFlow.type="E"
 
                     }
-                    "10411" -> {
+                    "104111" -> {
                         radioButtonDepositYape.visibility = View.VISIBLE
                         radioButtonRetireYape.visibility = View.VISIBLE
                         radioButtonDepositYape.isChecked = true
@@ -141,7 +141,7 @@ class CashFragment : Fragment() {
                         cashFlow.type="DY"
 
                     }
-                    "10412" -> {
+                    "104121" -> {
                         radioButtonDepositPlin.visibility = View.VISIBLE
                         radioButtonRetirePLin.visibility = View.VISIBLE
                         radioButtonDepositPlin.isChecked = true
@@ -155,7 +155,7 @@ class CashFragment : Fragment() {
                         cashFlow.type="DP"
 
                     }
-                    "10414" -> {
+                    "104141" -> {
                         radioButtonDepositFise.visibility = View.VISIBLE
                         radioButtonRetireFise.visibility = View.VISIBLE
                         radioButtonDepositFise.isChecked = true

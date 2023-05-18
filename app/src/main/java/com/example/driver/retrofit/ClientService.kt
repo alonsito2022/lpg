@@ -103,7 +103,8 @@ interface ClientService {
     companion object {
 
 //        var BASE_URL = "https://38.242.197.197:9015/commercial/api/v1/"
-         var BASE_URL = "https://www.camotegas.ml/"
+//         var BASE_URL = "https://www.camotegas.ml/"
+         var BASE_URL = "https://camotegas.net.pe/"
 //        var BASE_URL = "http://192.168.1.22:8000/"
 //        var BASE_URL = "http://192.168.1.14:8000/commercial/api/v1/"
 //        var BASE_URL = "http://192.168.1.15:8000/commercial/api/v1/"

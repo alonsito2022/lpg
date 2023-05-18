@@ -70,6 +70,35 @@
                 app:layout_constraintBottom_toBottomOf="@+id/clientAutoCompleteViewTextInputLayout"
                 app:layout_constraintEnd_toEndOf="@+id/clientAutoCompleteViewTextInputLayout" />
 
+            <RadioGroup
+                android:id="@+id/radioGroupClientCondition"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clientAutoCompleteViewTextInputLayout">
+
+                <RadioButton
+                    android:id="@+id/radioButtonClientExists"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/purple_500"
+                    android:fontFamily="@font/lato"
+                    android:text="CLIENTE EXISTENTE" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonNewClient"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/purple_500"
+                    android:fontFamily="@font/lato"
+                    android:text="NUEVO CLIENTE" />
+
+
+            </RadioGroup>
+
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayoutClientName"
@@ -79,7 +108,7 @@
                 android:hint="Nombre del cliente"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/clientAutoCompleteViewTextInputLayout"
+                app:layout_constraintTop_toBottomOf="@+id/radioGroupClientCondition"
                 app:endIconMode="clear_text">
 
                 <com.google.android.material.textfield.TextInputEditText

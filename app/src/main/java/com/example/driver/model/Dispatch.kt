@@ -24,6 +24,7 @@ class Dispatch() {
     var distributionKey: String = ""
     var distributionID: Int = 0
     var driverID: Int = 0
+    var timer: Int = 0
     var driverName: String = ""
     var driverPhone: String = ""
     var identifier: String = ""
