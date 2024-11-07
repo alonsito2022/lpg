@@ -184,7 +184,7 @@ class OrderAssignmentFragment : Fragment() {
                         d.status = "04"
 //                        d.distributionID = driver.distributionID
                         updateRestDispatch(d)
-                        btnSearch.callOnClick()
+
 //                        val newIdentifier = "${d.identifier.subSequence(0,10)}04"
 //                        dispatchReference.child(d.uid).child("distributionID").setValue(driver.distributionID)
 //                        dispatchReference.child(d.uid).child("distributionKey").setValue(driver.distributionKey)
@@ -197,32 +197,57 @@ class OrderAssignmentFragment : Fragment() {
                         )
                         deliveryReference.child(d.dispatchID.toString()).updateChildren(newValues)
                             .addOnSuccessListener {
-                                println("Los valores se actualizaron correctamente.")
                                 Toast.makeText(globalContext, "Pedido en ruta", Toast.LENGTH_SHORT).show()
                             }
                             .addOnFailureListener { error ->
                                 println("Ocurrió un error al actualizar los valores: $error")
                             }
 
-                        val duration = 900000  // 15 minutes
+                        var automaticWatch: CountDownTimer? = null
+                        val duration = 600000  // 10 minutes
                         val interval = 60000 // 1 minute
+                        var elapsedTime = 0
 
-                        val automaticWatch = object : CountDownTimer(
+                        automaticWatch = object : CountDownTimer(
                             duration.toLong(),
                             interval.toLong()
                         ) {
                             override fun onTick(millisUntilFinished: Long) {
-                                deliveryReference.child(d.dispatchID.toString()).child("timer").setValue((millisUntilFinished / 60000).toInt())
+                                elapsedTime += interval
+                                val minutesElapsed = (elapsedTime / 60000).toInt()
+                                val orderNode = deliveryReference.child(d.dispatchID.toString())
+                                orderNode.addListenerForSingleValueEvent(object : ValueEventListener {
+                                    override fun onDataChange(snapshot: DataSnapshot) {
+                                        if (snapshot.exists()) {
+                                            orderNode.child("timer").setValue(minutesElapsed)
+                                        } else {
+                                            automaticWatch?.cancel()
+                                        }
+                                    }
+                                    override fun onCancelled(error: DatabaseError) {
+                                        println("Error al verificar la existencia del nodo: $error")
+                                    }
+                                })
                             }
 
                             override fun onFinish() {
-                                deliveryReference.child(d.dispatchID.toString()).child("timer").setValue(0)
+//                                deliveryReference.child(d.dispatchID.toString()).child("timer").setValue(10)
+//                                d.status = "03"
+//                                updateRestDispatch(d)
+                                val nodeReference = database.getReference("deliveries/${d.dispatchID}")
+                                nodeReference.removeValue()
+                                    .addOnSuccessListener {
+                                        Toast.makeText(globalContext, "Pedido desestimado", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .addOnFailureListener { error ->
+                                        println("Ocurrió un error al eliminar el nodo: $error")
+                                    }
                             }
                         }
 
                         automaticWatch.start()
 
-
+                        btnSearch.callOnClick()
                     }
                     else{
                         Toast.makeText(globalContext, "Stock insuficiente", Toast.LENGTH_SHORT).show()
@@ -235,7 +260,7 @@ class OrderAssignmentFragment : Fragment() {
 //                        d.dispatchType = "01"
 //                        d.distributionID = distributionID
                         updateRestDispatch(d)
-                        btnSearch.callOnClick()
+
 //                        val newIdentifier = "${d.identifier.subSequence(0,8)}0102"
 
                         // Firebase update
@@ -248,10 +273,11 @@ class OrderAssignmentFragment : Fragment() {
 //                            "statusBg" to "secondary",
 //                            "dispatchStatusDisplay" to "COMPLETADO"
 //                        )
-                        deliveryReference.child(d.dispatchID.toString()).removeValue()
+                        val nodeReference = database.getReference("deliveries/${d.dispatchID}")
+                        nodeReference.removeValue()
                             .addOnSuccessListener {
-                                println("El nodo se eliminó correctamente.")
                                 Toast.makeText(globalContext, "Pedido completado", Toast.LENGTH_SHORT).show()
+                                btnSearch.callOnClick()
                             }
                             .addOnFailureListener { error ->
                                 println("Ocurrió un error al eliminar el nodo: $error")
@@ -276,7 +302,7 @@ class OrderAssignmentFragment : Fragment() {
                 "05" -> {
                     d.status = "03"
                     updateRestDispatch(d)
-                    btnSearch.callOnClick()
+
 //                    val newIdentifier = "${d.identifier.subSequence(0,10)}03"
 //                    dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
 //                    dispatchReference.child(d.uid).child("status").setValue("03")
@@ -284,12 +310,15 @@ class OrderAssignmentFragment : Fragment() {
 //                    val newValues = hashMapOf<String, Any>(
 //                        "status" to "03",
 //                        "statusBg" to "danger",
+
 //                        "dispatchStatusDisplay" to "ANULADO"
 //                    )
-                    deliveryReference.child(d.dispatchID.toString()).removeValue()
+                    val nodeReference = database.getReference("deliveries/${d.dispatchID}")
+                    nodeReference.removeValue()
                         .addOnSuccessListener {
                             println("El nodo se eliminó correctamente.")
                             Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
+                            btnSearch.callOnClick()
                         }
                         .addOnFailureListener { error ->
                             println("Ocurrió un error al eliminar el nodo: $error")
@@ -299,7 +328,7 @@ class OrderAssignmentFragment : Fragment() {
                 "04" -> {
                     d.status = "03"
                     updateRestDispatch(d)
-                    btnSearch.callOnClick()
+
 //                    val newIdentifier = "${d.identifier.subSequence(0,10)}03"
 //                    dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
 //                    dispatchReference.child(d.uid).child("status").setValue("03")
@@ -309,10 +338,12 @@ class OrderAssignmentFragment : Fragment() {
 //                        "statusBg" to "danger",
 //                        "dispatchStatusDisplay" to "ANULADO"
 //                    )
-                    deliveryReference.child(d.dispatchID.toString()).removeValue()
+                    val nodeReference = database.getReference("deliveries/${d.dispatchID}")
+                    nodeReference.removeValue()
                         .addOnSuccessListener {
                             println("El nodo se eliminó correctamente.")
                             Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
+                            btnSearch.callOnClick()
                         }
                         .addOnFailureListener { error ->
                             println("Ocurrió un error al eliminar el nodo: $error")
@@ -512,7 +543,8 @@ class OrderAssignmentFragment : Fragment() {
                         listDispatches,
                         object : DispatchPlacedAdapter.OnItemClickListener {
                             override fun onItemClick(model: Dispatch) {
-                                addInfo(model)
+//                                addInfo(model)
+                                Toast.makeText(globalContext, "Pedido completado", Toast.LENGTH_SHORT).show()
                             }
                         }
                     )
@@ -547,7 +579,8 @@ class OrderAssignmentFragment : Fragment() {
                         listDispatches,
                         object : DispatchPlacedAdapter.OnItemClickListener {
                             override fun onItemClick(model: Dispatch) {
-                                addInfo(model)
+//                                addInfo(model)
+                                Toast.makeText(globalContext, "Pedido anulado", Toast.LENGTH_SHORT).show()
                             }
                         }
                     )
@@ -559,6 +592,7 @@ class OrderAssignmentFragment : Fragment() {
         })
 
     }
+
     private fun searchDeliveries(){
         deliveryReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

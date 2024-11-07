@@ -8,7 +8,13 @@ plugins {
 
 android {
     compileSdk 31
-
+//    testOptions {
+//        unitTests.all {
+//            it.enabled = false
+//        }
+//        // Si también quieres deshabilitar las pruebas instrumentadas (androidTest):
+////        unitTests.returnDefaultValues = true
+//    }
     defaultConfig {
         applicationId "com.example.driver"
         minSdk 21
