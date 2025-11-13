@@ -24,7 +24,11 @@ class MethodPaymentAdapter(val dataSet: MutableMap<String, Double>): RecyclerVie
         val item = dataSet[dataSet.keys.elementAt(position)]
 
         when(dataSet.keys.elementAt(position).toString().uppercase()){
-            "CASH" -> holder.textViewPaymentMethodName.text = "EFECTIVO"
+            "01" -> holder.textViewPaymentMethodName.text = "EFECTIVO"
+            "02" -> holder.textViewPaymentMethodName.text = "YAPE"
+            "03" -> holder.textViewPaymentMethodName.text = "PLIN"
+            "04" -> holder.textViewPaymentMethodName.text = "FISE"
+            "NA" -> holder.textViewPaymentMethodName.text = "CREDITO"
             else -> holder.textViewPaymentMethodName.text = dataSet.keys.elementAt(position).toString().uppercase()
         }
 

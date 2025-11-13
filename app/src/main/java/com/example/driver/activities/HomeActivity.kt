@@ -86,7 +86,7 @@ class HomeActivity : AppCompatActivity() {
         if(hasNotification != "null"){
             goToOrderAssignmentFragment()
         }else if(savedInstanceState == null){
-            val itemSelected = navView.menu.getItem(4).subMenu.getItem(0)
+            val itemSelected = navView.menu.getItem(4).subMenu!!.getItem(0)
             navViewListener.onNavigationItemSelected(itemSelected)
         }
 
@@ -99,32 +99,32 @@ class HomeActivity : AppCompatActivity() {
             when (i) {
                 in 0..2 -> navView.menu.getItem(i).isChecked = false
                 3 -> {
-                    for (j in 0..4){navView.menu.getItem(i).subMenu.getItem(j).isChecked = false}
+                    for (j in 0..4){navView.menu.getItem(i).subMenu!!.getItem(j).isChecked = false}
                 }
                 4 -> {
-                    for (k in 0..1){navView.menu.getItem(i).subMenu.getItem(k).isChecked = false}
+                    for (k in 0..1){navView.menu.getItem(i).subMenu!!.getItem(k).isChecked = false}
                 }
             }
         }
     }
 
     fun goToOrderAssignmentFragment(){
-        val itemSelected = navView.menu.getItem(3).subMenu.getItem(1)
+        val itemSelected = navView.menu.getItem(3).subMenu!!.getItem(1)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
     fun goToOrderPlacedFragment(){
-        val itemSelected = navView.menu.getItem(3).subMenu.getItem(2)
+        val itemSelected = navView.menu.getItem(3).subMenu!!.getItem(2)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
     fun goToCashFragment(){
-        val itemSelected = navView.menu.getItem(3).subMenu.getItem(3)
+        val itemSelected = navView.menu.getItem(3).subMenu!!.getItem(3)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
     fun goToZoneFragment(){
-        val itemSelected = navView.menu.getItem(3).subMenu.getItem(4)
+        val itemSelected = navView.menu.getItem(3).subMenu!!.getItem(4)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
@@ -134,7 +134,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun goToProfileFragment(){
-        val itemSelected = navView.menu.getItem(4).subMenu.getItem(0)
+        val itemSelected = navView.menu.getItem(4).subMenu!!.getItem(0)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
@@ -164,9 +164,9 @@ class HomeActivity : AppCompatActivity() {
         navView.menu.getItem(0).isEnabled = status
         navView.menu.getItem(1).isEnabled = status
         navView.menu.getItem(2).isEnabled = status
-        navView.menu.getItem(3).subMenu.getItem(0).isEnabled = status
-        navView.menu.getItem(3).subMenu.getItem(1).isEnabled = status
-        navView.menu.getItem(3).subMenu.getItem(2).isEnabled = status
+        navView.menu.getItem(3).subMenu!!.getItem(0).isEnabled = status
+        navView.menu.getItem(3).subMenu!!.getItem(1).isEnabled = status
+        navView.menu.getItem(3).subMenu!!.getItem(2).isEnabled = status
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

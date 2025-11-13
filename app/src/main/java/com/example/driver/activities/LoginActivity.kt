@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
+import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import com.example.driver.LocalDatabase.Preference
 import com.example.driver.R
@@ -13,8 +15,9 @@ import com.example.driver.model.Driver
 import com.example.driver.rest.ApiResponse
 import com.example.driver.retrofit.ClientService
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.messaging.FirebaseMessaging
-import kotlinx.android.synthetic.main.activity_login.*
+//import kotlinx.android.synthetic.main.activity_login.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,12 +27,19 @@ class LoginActivity : AppCompatActivity() {
 //    var emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
 
     lateinit var preference: Preference
+    private lateinit var btn_login: Button
+    private lateinit var email_login: TextInputEditText
+    private lateinit var password_login: TextInputEditText
 
     private var device: Device = Device()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        btn_login = findViewById(R.id.btn_login)
+        email_login = findViewById(R.id.email_login)
+        password_login = findViewById(R.id.password_login)
+
         btn_login.setOnClickListener{ login() }
 
         preference = Preference(applicationContext)

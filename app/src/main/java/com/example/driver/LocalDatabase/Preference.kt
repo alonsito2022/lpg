@@ -6,8 +6,8 @@ import android.content.SharedPreferences
 class Preference {
 
     private val PREFERENCE_NAME = "MY_PREFERENCE"
-    lateinit var context: Context
-    lateinit var preferences: SharedPreferences
+    var context: Context
+    var preferences: SharedPreferences
 
     constructor(context: Context){
         this.context = context

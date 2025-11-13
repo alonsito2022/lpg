@@ -50,6 +50,7 @@ class PaymentFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         globalContext = this.activity
+
         database = FirebaseDatabase.getInstance()
 
         driverReference = database.getReference("drivers")
@@ -95,7 +96,7 @@ class PaymentFragment : Fragment() {
                 if(driver.distributionKey.isNotEmpty()){
                     getDistribution(driver.distributionKey)
                     getDistributionPayment(driver.distributionKey)
-                    getRestPaymentMethods()
+                    // getRestPaymentMethods()
                     getCreditor(driver.uid)
                 }
 
@@ -125,7 +126,7 @@ class PaymentFragment : Fragment() {
     private fun getRestPaymentMethods(){
         Log.d("MIKE", "getRestPaymentMethods")
 
-        val apiInterface = ClientService.create().getPaymentMethods(driver)
+        val apiInterface = ClientService.create().getPaymentMethods(dispatch)
         apiInterface.enqueue(object : Callback<RequestPaymentMethod> {
             override fun onResponse(call: Call<RequestPaymentMethod>, response: Response<RequestPaymentMethod>) {
                 Log.d("MIKE", response.isSuccessful.toString())

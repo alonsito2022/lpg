@@ -10,8 +10,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,6 +28,7 @@ import com.example.driver.model.CashFlow
 import com.example.driver.model.Dispatch
 import com.example.driver.model.Driver
 import com.example.driver.model.Vehicle
+import com.example.driver.rest.RequestPaymentMethod
 import com.example.driver.retrofit.ClientService
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
@@ -46,10 +49,17 @@ class OrderPlacedFragment : Fragment() {
     private var listDispatches = arrayListOf<Dispatch>()
 
     private lateinit var editTextSearchDate: TextInputEditText
+    private lateinit var constraintLayoutSummary: ConstraintLayout
     private lateinit var btnSearch: Button
     private lateinit var recyclerViewOrderPlaced: RecyclerView
     private lateinit var recyclerViewDispatchMethodPayment: RecyclerView
     private lateinit var fab: FloatingActionButton
+
+    private lateinit var textViewCashPrice: TextView
+    private lateinit var textViewYapePrice: TextView
+    private lateinit var textViewPlinPrice: TextView
+    private lateinit var textViewCreditPrice: TextView
+    private lateinit var textViewTotalPrice: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +82,7 @@ class OrderPlacedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        constraintLayoutSummary = view.findViewById(R.id.constraintLayoutSummary)
         recyclerViewOrderPlaced = view.findViewById(R.id.recyclerViewOrderPlaced)
         editTextSearchDate = view.findViewById(R.id.editTextSearchDate)
         val sdf2 = SimpleDateFormat("dd/MM/yyyy").format(Date())
@@ -83,13 +94,52 @@ class OrderPlacedFragment : Fragment() {
 
         btnSearch = view.findViewById(R.id.btnSearch)
         btnSearch.setOnClickListener{
-            if(editTextSearchDate.text.toString() != "")
+            if(editTextSearchDate.text.toString() != "") {
+                constraintLayoutSummary.visibility = View.VISIBLE
                 loadDispatches()
+                getRestPaymentMethods()
+            }
             else
                 Toast.makeText(globalContext, "Elija caja.", Toast.LENGTH_SHORT).show()
         }
         fab = view.findViewById(R.id.floatingActionButtonNewDispatch)
         fab.setOnClickListener { goToFragment() }
+
+        textViewCashPrice = view.findViewById(R.id.textViewCashPrice)
+        textViewYapePrice = view.findViewById(R.id.textViewYapePrice)
+        textViewPlinPrice = view.findViewById(R.id.textViewPlinPrice)
+        textViewTotalPrice = view.findViewById(R.id.textViewTotalPrice)
+        textViewCreditPrice = view.findViewById(R.id.textViewCreditPrice)
+    }
+
+    private fun getRestPaymentMethods(){
+        Log.d("MIKE", "getRestPaymentMethods")
+
+        val apiInterface = ClientService.create().getPaymentMethods(dispatch)
+        apiInterface.enqueue(object : Callback<RequestPaymentMethod> {
+            override fun onResponse(call: Call<RequestPaymentMethod>, response: Response<RequestPaymentMethod>) {
+                Log.d("MIKE", response.isSuccessful.toString())
+                val responsePayment = response.body()!!
+                textViewTotalPrice.text = "S/ ${responsePayment.sumTotalAmount}"
+                if(responsePayment.yape !== null){
+                    textViewYapePrice.text = "S/ ${responsePayment.yape}"
+                }
+                if(responsePayment.plin !== null){
+                    textViewPlinPrice.text = "S/ ${responsePayment.plin}"
+                }
+                if(responsePayment.cash !== null){
+                    textViewCashPrice.text = "S/ ${responsePayment.cash}"
+                }
+                if(responsePayment.credit !== null){
+                    textViewCreditPrice.text = "S/ ${responsePayment.credit}"
+                }
+            }
+
+            override fun onFailure(call: Call<RequestPaymentMethod>, t: Throwable) {
+                Log.d("MIKE", "getRestPaymentMethods onFailure: " + t.message.toString())
+            }
+
+        })
     }
 
     private fun goToFragment(){

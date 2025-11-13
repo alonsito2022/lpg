@@ -25,7 +25,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import kotlinx.android.synthetic.main.order_map.*
+//import kotlinx.android.synthetic.main.order_map.*
 
 class DispatchPlacedAdapter(val c: Context, val dataSet: ArrayList<Dispatch>, private val mListener: OnItemClickListener?): RecyclerView.Adapter<DispatchPlacedAdapter.ViewHolder>() {
 
