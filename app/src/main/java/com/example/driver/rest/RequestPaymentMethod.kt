@@ -12,6 +12,8 @@ class RequestPaymentMethod (
     var yape: String = "",
     @SerializedName("credit")
     var credit: String = "",
+    @SerializedName("fise")
+    var fise: String = "",
     @SerializedName("sumTotalAmount")
     var sumTotalAmount: String = "",
 

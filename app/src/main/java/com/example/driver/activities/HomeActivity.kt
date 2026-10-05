@@ -68,6 +68,7 @@ class HomeActivity : AppCompatActivity() {
                 R.id.nav_item_payments -> replaceFragment(PaymentFragment(), it.title.toString())
                 R.id.nav_item_order_assignment -> replaceFragment(OrderAssignmentFragment(), it.title.toString())
                 R.id.nav_item_order_placed -> replaceFragment(OrderPlacedFragment(), it.title.toString())
+                R.id.nav_item_collections -> replaceFragment(CollectionsFragment(), it.title.toString())
                 R.id.nav_item_cashes -> replaceFragment(CashFragment(), it.title.toString())
                 R.id.nav_item_locations -> replaceFragment(ZoneFragment(), it.title.toString())
                 R.id.nav_item_profile -> replaceFragment(ProfileFragment(), it.title.toString())
@@ -99,7 +100,7 @@ class HomeActivity : AppCompatActivity() {
             when (i) {
                 in 0..2 -> navView.menu.getItem(i).isChecked = false
                 3 -> {
-                    for (j in 0..4){navView.menu.getItem(i).subMenu!!.getItem(j).isChecked = false}
+                    for (j in 0..5){navView.menu.getItem(i).subMenu!!.getItem(j).isChecked = false}
                 }
                 4 -> {
                     for (k in 0..1){navView.menu.getItem(i).subMenu!!.getItem(k).isChecked = false}
@@ -118,13 +119,18 @@ class HomeActivity : AppCompatActivity() {
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
-    fun goToCashFragment(){
+    fun goToCollectionsFragment(){
         val itemSelected = navView.menu.getItem(3).subMenu!!.getItem(3)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 
-    fun goToZoneFragment(){
+    fun goToCashFragment(){
         val itemSelected = navView.menu.getItem(3).subMenu!!.getItem(4)
+        navViewListener.onNavigationItemSelected(itemSelected)
+    }
+
+    fun goToZoneFragment(){
+        val itemSelected = navView.menu.getItem(3).subMenu!!.getItem(5)
         navViewListener.onNavigationItemSelected(itemSelected)
     }
 

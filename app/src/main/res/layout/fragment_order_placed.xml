@@ -56,13 +56,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginStart="4dp"
-                android:backgroundTint="@color/gray_700"
-                android:text="Consultar"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/purple_500"
+                android:text="🔍 Consultar"
                 android:textColor="@color/white"
-                app:icon="@drawable/ic_baseline_search_24"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconTint="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textInputLayoutSearchDate" />
@@ -70,33 +70,36 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/constraintLayoutSummary"
+            android:layout_margin="12dp"
             android:visibility="gone"
-            android:layout_margin="8dp">
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/white">
 
-            <View
-                android:id="@+id/dividerPayment1"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayoutSummary"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:background="?android:attr/listDivider"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_height="wrap_content"
+                android:padding="16dp">
 
             <TextView
                 android:id="@+id/textViewPayment2"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Recaudación del dia"
-                android:textSize="14sp"
+                android:text="💰 Recaudación del día"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/purple_700"
+                android:layout_marginBottom="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dividerPayment1" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/ConstraintLayoutPaymentCash"
@@ -116,11 +119,12 @@
 
                 <TextView
                     android:id="@+id/textViewCashTitle"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    style="@style/TextAppearance.MaterialComponents.Body1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="EFECTIVO:"
-                    android:textColor="@color/purple_700"
+                    android:text="💵 EFECTIVO"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentCashInnerV5"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -132,6 +136,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="S/ 0.0"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_700"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
@@ -159,11 +166,12 @@
 
                 <TextView
                     android:id="@+id/textViewYapeTitle"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    style="@style/TextAppearance.MaterialComponents.Body1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="YAPE:"
-                    android:textColor="@color/purple_700"
+                    android:text="📱 YAPE"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentYapeInnerV5"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -175,6 +183,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="S/ 0.0"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_700"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
@@ -202,11 +213,12 @@
 
                 <TextView
                     android:id="@+id/textViewPlinTitle"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    style="@style/TextAppearance.MaterialComponents.Body1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="PLIN:"
-                    android:textColor="@color/purple_700"
+                    android:text="💳 PLIN"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentPlinInnerV5"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -218,6 +230,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="S/ 0.0"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_700"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
@@ -245,11 +260,12 @@
 
                 <TextView
                     android:id="@+id/textViewCreditTitle"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    style="@style/TextAppearance.MaterialComponents.Body1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="CREDITO:"
-                    android:textColor="@color/purple_700"
+                    android:text="📋 CRÉDITO"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentCreditInnerV5"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -261,6 +277,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="S/ 0.0"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_700"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
@@ -269,19 +288,69 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/ConstraintLayoutPaymentFise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ConstraintLayoutPaymentCredit">
+
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelinePaymentFiseInnerV5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.5" />
+
+                <TextView
+                    android:id="@+id/textViewFiseTitle"
+                    style="@style/TextAppearance.MaterialComponents.Body1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🏛️ FISE"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentFiseInnerV5"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textViewFisePrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="S/ 0.0"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_700"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="@+id/guidelinePaymentFiseInnerV5"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <View
                 android:id="@+id/dividerPayment2"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?android:attr/listDivider"
+                android:layout_height="2dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/purple_200"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ConstraintLayoutPaymentCredit" />
+                app:layout_constraintTop_toBottomOf="@+id/ConstraintLayoutPaymentFise" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/ConstraintLayoutPaymentTotalPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/purple_200"
+                android:padding="12dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -297,11 +366,12 @@
 
                 <TextView
                     android:id="@+id/textViewTotalPriceTitle"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    style="@style/TextAppearance.MaterialComponents.Headline6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="TOTAL:"
                     android:textColor="@color/purple_700"
+                    android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentTotalPriceInnerV5"
@@ -314,6 +384,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="S/ 0.0"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_700"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
@@ -324,31 +397,55 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <ScrollView
-            android:id="@+id/scrollViewList"
+        </com.google.android.material.card.MaterialCardView>
+
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:layout_weight="1">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <ScrollView
+                android:id="@+id/scrollViewList"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp">
+                android:layout_height="match_parent">
 
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewOrderPlaced"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:layout_margin="4dp">
 
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerViewOrderPlaced"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
+            </ScrollView>
 
-        </ScrollView>
+            <ProgressBar
+                android:id="@+id/progressBarLoading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:indeterminateTint="@color/purple_500" />
+
+            <TextView
+                android:id="@+id/textViewEmptyState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="No hay ventas para mostrar"
+                android:textSize="16sp"
+                android:textColor="@color/gray_700"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
     </LinearLayout>
 

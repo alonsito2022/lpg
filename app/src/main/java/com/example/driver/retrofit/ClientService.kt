@@ -4,6 +4,9 @@ import com.example.driver.rest.RequestDispatch
 import com.example.driver.rest.RequestDispatchDetail
 import com.example.driver.rest.ApiResponse
 import com.example.driver.rest.RequestPaymentMethod
+import com.example.driver.rest.RequestDateRange
+import com.example.driver.rest.ClientWithCollection
+import com.example.driver.rest.CreditCollectionsSummary
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -100,14 +103,18 @@ interface ClientService {
     @Headers("Accept: application/json", "Content-type:application/json")
     fun getDispatchesByDate(@Body params: Dispatch): Call<ArrayList<Dispatch>>
 
+    @POST("commercial/api/v2/get_clients_with_collections/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun getClientsWithCollections(@Body params: RequestDateRange): Call<ArrayList<ClientWithCollection>>
+
+    @POST("commercial/api/v2/get_credit_collections_summary/")
+    @Headers("Accept: application/json", "Content-type:application/json")
+    fun getCreditCollectionsSummary(@Body params: RequestDateRange): Call<CreditCollectionsSummary>
+
     companion object {
 
-//        var BASE_URL = "https://38.242.197.197:9015/commercial/api/v1/"
-//        var BASE_URL = "https://www.camotegas.ml/"
         var BASE_URL = "https://camotegas.net.pe/"
 //        var BASE_URL = "http://192.168.1.20:8000/"
-//        var BASE_URL = "http://192.168.1.14:8000/commercial/api/v1/"
-//        var BASE_URL = "http://192.168.1.15:8000/commercial/api/v1/"
 
         fun create() : ClientService {
 

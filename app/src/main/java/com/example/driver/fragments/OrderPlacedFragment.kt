@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -47,18 +48,23 @@ class OrderPlacedFragment : Fragment() {
 
     private var dispatch: Dispatch = Dispatch()
     private var listDispatches = arrayListOf<Dispatch>()
+    private var loadingCount = 0
 
     private lateinit var editTextSearchDate: TextInputEditText
     private lateinit var constraintLayoutSummary: ConstraintLayout
+    private lateinit var cardViewSummary: com.google.android.material.card.MaterialCardView
     private lateinit var btnSearch: Button
     private lateinit var recyclerViewOrderPlaced: RecyclerView
     private lateinit var recyclerViewDispatchMethodPayment: RecyclerView
     private lateinit var fab: FloatingActionButton
+    private lateinit var progressBarLoading: ProgressBar
+    private lateinit var textViewEmptyState: TextView
 
     private lateinit var textViewCashPrice: TextView
     private lateinit var textViewYapePrice: TextView
     private lateinit var textViewPlinPrice: TextView
     private lateinit var textViewCreditPrice: TextView
+    private lateinit var textViewFisePrice: TextView
     private lateinit var textViewTotalPrice: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,8 +89,12 @@ class OrderPlacedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         constraintLayoutSummary = view.findViewById(R.id.constraintLayoutSummary)
+        cardViewSummary = view.findViewById(R.id.cardViewSummary)
         recyclerViewOrderPlaced = view.findViewById(R.id.recyclerViewOrderPlaced)
         editTextSearchDate = view.findViewById(R.id.editTextSearchDate)
+        progressBarLoading = view.findViewById(R.id.progressBarLoading)
+        textViewEmptyState = view.findViewById(R.id.textViewEmptyState)
+        
         val sdf2 = SimpleDateFormat("dd/MM/yyyy").format(Date())
         val sdf3 = SimpleDateFormat("yyyy-MM-dd").format(Date())
         dispatch.dispatchDate = sdf3
@@ -95,12 +105,14 @@ class OrderPlacedFragment : Fragment() {
         btnSearch = view.findViewById(R.id.btnSearch)
         btnSearch.setOnClickListener{
             if(editTextSearchDate.text.toString() != "") {
-                constraintLayoutSummary.visibility = View.VISIBLE
+                loadingCount = 0
+                showLoading()
+                cardViewSummary.visibility = View.VISIBLE
                 loadDispatches()
                 getRestPaymentMethods()
             }
             else
-                Toast.makeText(globalContext, "Elija caja.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(globalContext, "Elija una fecha.", Toast.LENGTH_SHORT).show()
         }
         fab = view.findViewById(R.id.floatingActionButtonNewDispatch)
         fab.setOnClickListener { goToFragment() }
@@ -110,6 +122,7 @@ class OrderPlacedFragment : Fragment() {
         textViewPlinPrice = view.findViewById(R.id.textViewPlinPrice)
         textViewTotalPrice = view.findViewById(R.id.textViewTotalPrice)
         textViewCreditPrice = view.findViewById(R.id.textViewCreditPrice)
+        textViewFisePrice = view.findViewById(R.id.textViewFisePrice)
     }
 
     private fun getRestPaymentMethods(){
@@ -119,24 +132,42 @@ class OrderPlacedFragment : Fragment() {
         apiInterface.enqueue(object : Callback<RequestPaymentMethod> {
             override fun onResponse(call: Call<RequestPaymentMethod>, response: Response<RequestPaymentMethod>) {
                 Log.d("MIKE", response.isSuccessful.toString())
-                val responsePayment = response.body()!!
-                textViewTotalPrice.text = "S/ ${responsePayment.sumTotalAmount}"
-                if(responsePayment.yape !== null){
-                    textViewYapePrice.text = "S/ ${responsePayment.yape}"
+                if (response.body() != null) {
+                    val responsePayment = response.body()!!
+                    textViewTotalPrice.text = "S/ ${responsePayment.sumTotalAmount}"
+                    if(responsePayment.yape !== null){
+                        textViewYapePrice.text = "S/ ${responsePayment.yape}"
+                    } else {
+                        textViewYapePrice.text = "S/ 0.0"
+                    }
+                    if(responsePayment.plin !== null){
+                        textViewPlinPrice.text = "S/ ${responsePayment.plin}"
+                    } else {
+                        textViewPlinPrice.text = "S/ 0.0"
+                    }
+                    if(responsePayment.cash !== null){
+                        textViewCashPrice.text = "S/ ${responsePayment.cash}"
+                    } else {
+                        textViewCashPrice.text = "S/ 0.0"
+                    }
+                    if(responsePayment.credit !== null){
+                        textViewCreditPrice.text = "S/ ${responsePayment.credit}"
+                    } else {
+                        textViewCreditPrice.text = "S/ 0.0"
+                    }
+                    if(responsePayment.fise !== null){
+                        textViewFisePrice.text = "S/ ${responsePayment.fise}"
+                    } else {
+                        textViewFisePrice.text = "S/ 0.0"
+                    }
                 }
-                if(responsePayment.plin !== null){
-                    textViewPlinPrice.text = "S/ ${responsePayment.plin}"
-                }
-                if(responsePayment.cash !== null){
-                    textViewCashPrice.text = "S/ ${responsePayment.cash}"
-                }
-                if(responsePayment.credit !== null){
-                    textViewCreditPrice.text = "S/ ${responsePayment.credit}"
-                }
+                checkAndHideLoading()
             }
 
             override fun onFailure(call: Call<RequestPaymentMethod>, t: Throwable) {
                 Log.d("MIKE", "getRestPaymentMethods onFailure: " + t.message.toString())
+                Toast.makeText(globalContext, "Error al cargar el resumen de pagos", Toast.LENGTH_SHORT).show()
+                checkAndHideLoading()
             }
 
         })
@@ -181,24 +212,58 @@ class OrderPlacedFragment : Fragment() {
             ) {
                 if (response.body() != null) {
                     listDispatches = response.body()!!
-                    recyclerViewOrderPlaced.layoutManager = LinearLayoutManager(activity)
-                    recyclerViewOrderPlaced.setHasFixedSize(true)
-                    recyclerViewOrderPlaced.adapter = DispatchPlacedAdapter(
-                        globalContext!!,
-                        listDispatches,
-                        object : DispatchPlacedAdapter.OnItemClickListener {
-                            override fun onItemClick(model: Dispatch) {
-                                addInfo(model)
+                    if (listDispatches.isNotEmpty()) {
+                        recyclerViewOrderPlaced.layoutManager = LinearLayoutManager(activity)
+                        recyclerViewOrderPlaced.setHasFixedSize(true)
+                        recyclerViewOrderPlaced.adapter = DispatchPlacedAdapter(
+                            globalContext!!,
+                            listDispatches,
+                            object : DispatchPlacedAdapter.OnItemClickListener {
+                                override fun onItemClick(model: Dispatch) {
+                                    addInfo(model)
+                                }
                             }
-                        }
-                    )
+                        )
+                        recyclerViewOrderPlaced.visibility = View.VISIBLE
+                        textViewEmptyState.visibility = View.GONE
+                    } else {
+                        recyclerViewOrderPlaced.visibility = View.GONE
+                        textViewEmptyState.visibility = View.VISIBLE
+                    }
+                } else {
+                    recyclerViewOrderPlaced.visibility = View.GONE
+                    textViewEmptyState.visibility = View.VISIBLE
                 }
+                checkAndHideLoading()
             }
             override fun onFailure(call: Call<ArrayList<Dispatch>>, t: Throwable) {
-                Log.d("MIKE", "loadCashFlows. Algo salio mal..." + t.message.toString())
+                Log.d("MIKE", "loadDispatches. Algo salio mal..." + t.message.toString())
+                recyclerViewOrderPlaced.visibility = View.GONE
+                textViewEmptyState.visibility = View.VISIBLE
+                Toast.makeText(globalContext, "Error al cargar las ventas", Toast.LENGTH_SHORT).show()
+                checkAndHideLoading()
             }
         })
 
+    }
+
+    private fun showLoading() {
+        progressBarLoading.visibility = View.VISIBLE
+        recyclerViewOrderPlaced.visibility = View.GONE
+        textViewEmptyState.visibility = View.GONE
+        btnSearch.isEnabled = false
+    }
+
+    private fun checkAndHideLoading() {
+        loadingCount++
+        if (loadingCount >= 2) {
+            hideLoading()
+        }
+    }
+
+    private fun hideLoading() {
+        progressBarLoading.visibility = View.GONE
+        btnSearch.isEnabled = true
     }
 
     private fun showDatePickerDialog(){

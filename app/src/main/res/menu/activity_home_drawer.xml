@@ -35,6 +35,11 @@
                         android:title="Ventas realizadas" />
 
                     <item
+                        android:id="@+id/nav_item_collections"
+                        android:icon="@drawable/ic_baseline_payment_24"
+                        android:title="Cobranzas" />
+
+                    <item
                         android:id="@+id/nav_item_cashes"
                         android:icon="@drawable/ic_baseline_point_of_sale_24"
                         android:visible="false"

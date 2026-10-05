@@ -69,6 +69,21 @@
                 app:layout_constraintBottom_toBottomOf="@+id/clientAutoCompleteViewTextInputLayout"
                 app:layout_constraintEnd_toEndOf="@+id/clientAutoCompleteViewTextInputLayout" />
 
+            <TextView
+                android:id="@+id/textViewDefaultClientMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="Se tomará por defecto el cliente: CLIENTE VARIOS"
+                android:textColor="@color/purple_700"
+                android:textSize="12sp"
+                android:textStyle="italic"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clientAutoCompleteViewTextInputLayout" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayoutClientPhone"
@@ -78,7 +93,7 @@
                 android:hint="Telefono del cliente"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/clientAutoCompleteViewTextInputLayout"
+                app:layout_constraintTop_toBottomOf="@+id/textViewDefaultClientMessage"
                 app:endIconMode="clear_text">
 
                 <com.google.android.material.textfield.TextInputEditText

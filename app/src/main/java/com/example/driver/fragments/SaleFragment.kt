@@ -10,6 +10,8 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -83,6 +85,7 @@ class SaleFragment : Fragment() {
     private lateinit var editTextYapeTime: TextInputEditText
     private lateinit var textInputLayoutPaymentDate: TextInputLayout
     private lateinit var textInputLayoutYapeTime: TextInputLayout
+    private lateinit var textViewDefaultClientMessage: TextView
 
     private var categorySelected: String = "B"
     private var brandSelected: String = "C"
@@ -109,8 +112,20 @@ class SaleFragment : Fragment() {
     }
 
     private fun loadWayPay(){
-
-        val listMethod = listOf("EFECTIVO", "YAPE", "PLIN", "FISE", "CREDITO")
+        val listMethod: List<String>
+        
+        // Si es "liquido prestado" (PG) o "completo prestado" (PBG), solo CREDITO
+        if (modalitySelected == "PG" || modalitySelected == "PBG") {
+            listMethod = listOf("CREDITO")
+        }
+        // Si es "liquido" (R), "completo" (F) o "fierro prestado" (PB), sin CREDITO
+        else if (modalitySelected == "R" || modalitySelected == "F" || modalitySelected == "PB") {
+            listMethod = listOf("EFECTIVO", "YAPE", "PLIN", "FISE")
+        }
+        // Por defecto, todos los métodos
+        else {
+            listMethod = listOf("EFECTIVO", "YAPE", "PLIN", "FISE", "CREDITO")
+        }
 
         val adapter = ArrayAdapter(
             globalContext!!,
@@ -119,15 +134,46 @@ class SaleFragment : Fragment() {
         )
         autoCompleteMethodName.keyListener = null
         autoCompleteMethodName.setAdapter(adapter)
-        autoCompleteMethodName.setText(
-            autoCompleteMethodName.adapter.getItem(0).toString(),
-            false
-        )
+        
+        // Si solo hay CREDITO, seleccionarlo automáticamente
+        if (listMethod.size == 1 && listMethod[0] == "CREDITO") {
+            autoCompleteMethodName.setText("CREDITO", false)
+            textInputLayoutPaymentDate.isVisible = true
+            textInputLayoutYapeTime.isVisible = false
+            val calendar = Calendar.getInstance()
+            val sdf2 = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(calendar.time)
+            val sdf3 = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+            dispatch.paymentDate = sdf3
+            editTextPaymentDate.setText(sdf2)
+        } else {
+            // Seleccionar el primer método disponible
+            autoCompleteMethodName.setText(
+                autoCompleteMethodName.adapter.getItem(0).toString(),
+                false
+            )
+            textInputLayoutPaymentDate.isVisible = false
+            textInputLayoutYapeTime.isVisible = false
+        }
 
         autoCompleteMethodName.setOnItemClickListener { adapterView, view, position, l ->
             val itemSelected = adapter.getItem(position).toString()
             textInputLayoutPaymentDate.isVisible = itemSelected == "CREDITO"
             textInputLayoutYapeTime.isVisible = itemSelected == "YAPE"
+            
+            if (itemSelected == "YAPE") {
+                val cal = Calendar.getInstance()
+                val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cal.time)
+                editTextYapeTime.setText(currentTime)
+                dispatch.yapeTime = currentTime
+            }
+            
+            if (itemSelected == "CREDITO") {
+                val calendar = Calendar.getInstance()
+                val sdf2 = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(calendar.time)
+                val sdf3 = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+                dispatch.paymentDate = sdf3
+                editTextPaymentDate.setText(sdf2)
+            }
         }
     }
 
@@ -156,6 +202,7 @@ class SaleFragment : Fragment() {
         textInputLayoutPaymentDate = view.findViewById(R.id.textInputLayoutPaymentDate)
         textInputLayoutYapeTime = view.findViewById(R.id.textInputLayoutYapeTime)
         editTextYapeTime = view.findViewById(R.id.editTextYapeTime)
+        textViewDefaultClientMessage = view.findViewById(R.id.textViewDefaultClientMessage)
 
         chipGroupCategory = view.findViewById(R.id.chipGroupCategory)
         chipGroupBrand = view.findViewById(R.id.chipGroupBrand)
@@ -169,6 +216,21 @@ class SaleFragment : Fragment() {
 
         editTextPaymentDate.setOnClickListener { showDatePickerDialog() }
         loadWayPay()
+        loadDefaultClient()
+        
+        // Listener para detectar cuando se borra el texto del cliente
+        clientAutoCompleteView.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Si el texto está vacío, limpiar los datos del cliente
+                if (s.isNullOrEmpty()) {
+                    clearClientData()
+                }
+            }
+            
+            override fun afterTextChanged(s: Editable?) {}
+        })
         editTextYapeTime.setOnClickListener(object : View.OnClickListener{
             override fun onClick(p0: View?) {
                 val cal = Calendar.getInstance()
@@ -274,6 +336,9 @@ class SaleFragment : Fragment() {
                     )))
                 }
             }
+            // Limpiar métodos de pago agregados cuando cambia la modalidad
+            clearPaymentMethods()
+            loadWayPay()
             loadProducts()
 
         }
@@ -328,6 +393,64 @@ class SaleFragment : Fragment() {
 
     }
 
+    private fun loadDefaultClient() {
+        val apiInterface = ClientService.create().searchClientsAndAddresses("CLIENTE VARIOS")
+        apiInterface.enqueue(object : Callback<ArrayList<Client>> {
+            override fun onResponse(
+                call: Call<ArrayList<Client>>?,
+                response: Response<ArrayList<Client>>?
+            ) {
+                if (response?.body() != null) {
+                    val list = response.body()!!
+                    val defaultClient = list.find { it.names.contains("CLIENTE VARIOS", ignoreCase = true) }
+                    
+                    if (defaultClient != null) {
+                        assignClientToDispatch(defaultClient)
+                        textViewDefaultClientMessage.visibility = View.VISIBLE
+                    } else {
+                        textViewDefaultClientMessage.visibility = View.GONE
+                    }
+                }
+            }
+
+            override fun onFailure(
+                call: Call<ArrayList<Client>>?,
+                t: Throwable?
+            ) {
+                Log.d("MIKE", "Error al cargar cliente por defecto: " + t!!.message.toString())
+                textViewDefaultClientMessage.visibility = View.GONE
+            }
+        })
+    }
+
+    private fun assignClientToDispatch(model: Client) {
+        dispatch.clientID = model.id ?: 0
+        dispatch.clientName = model.names
+        dispatch.clientPhone = model.phone
+
+        editTextClientPhone.setText(model.phone)
+        clientAutoCompleteView.setText(model.names)
+
+        if (model.addresses.size > 0) {
+            dispatch.addressID = model.addresses[0].id ?: 0
+            dispatch.addressName = model.addresses[0].address
+            dispatch.addressLatitude = model.addresses[0].latitude
+            dispatch.addressLongitude = model.addresses[0].longitude
+        }
+    }
+
+    private fun clearClientData() {
+        dispatch.clientID = 0
+        dispatch.clientName = ""
+        dispatch.clientPhone = ""
+        dispatch.addressID = 0
+        dispatch.addressName = ""
+        dispatch.addressLatitude = 0.0
+        dispatch.addressLongitude = 0.0
+        editTextClientPhone.setText("")
+        textViewDefaultClientMessage.visibility = View.GONE
+    }
+
     private fun loadRestClient() {
         if(clientAutoCompleteView.text.isNotEmpty() && clientAutoCompleteView.text.toString().count() >=3){
 
@@ -354,18 +477,8 @@ class SaleFragment : Fragment() {
                                 clientAutoCompleteView.closeKeyBoard(inputManager)
                                 clientAutoCompleteView.clearFocus()
 
-                                dispatch.clientID = model.id!!
-                                dispatch.clientName = model.names
-                                dispatch.clientPhone = model.phone
-
-                                editTextClientPhone.setText(model.phone)
-
-                                if(model.addresses.size > 0){
-                                    dispatch.addressID = model.addresses[0].id!!
-                                    dispatch.addressName = model.addresses[0].address
-                                    dispatch.addressLatitude = model.addresses[0].latitude
-                                    dispatch.addressLongitude = model.addresses[0].longitude
-                                }
+                                assignClientToDispatch(model)
+                                textViewDefaultClientMessage.visibility = View.GONE
 
                             }
                         })
@@ -414,10 +527,6 @@ class SaleFragment : Fragment() {
                 if (textPrice.isNotEmpty() && textPrice.toDouble() > 0){
                     d.price = textPrice.toDouble()
                     d.subtotal = d.quantity * d.price
-                    dispatchDetailMap.filter { it.productID == d.productID && it.returnability == d.returnability }.forEach {
-                        it.price = d.price
-                        it.subtotal = d.subtotal
-                    }
                     updateTotal()
                 }
             }
@@ -431,33 +540,24 @@ class SaleFragment : Fragment() {
         }
 
         btnPlus.setOnClickListener {
-            var totalQuantity = 0
-            val searchDetail = dispatchDetailMap.filter { it.productID == d.productID && it.quantity > 0 }
-            searchDetail.forEach {totalQuantity += it.quantity}
-
-            if (d.quantityMax - totalQuantity > 0) {
+            // Como solo hay un producto, verificamos directamente contra el stock
+            if (d.quantity < d.quantityMax) {
                 d.quantity += 1
                 textViewQuantity.text = d.quantity.toString()
-                dispatchDetailMap.filter { it.productID == d.productID && it.returnability == d.returnability }.forEach {
-                    it.quantity = d.quantity
-                    it.subtotal = d.quantity.toDouble() * d.price
-                }
+                d.subtotal = d.quantity.toDouble() * d.price
                 updateTotal()
+            } else {
+                Toast.makeText(globalContext, "Stock máximo alcanzado", Toast.LENGTH_SHORT).show()
             }
-
         }
 
         btnMinus.setOnClickListener {
             if (d.quantity > 1) {
                 d.quantity -= 1
                 textViewQuantity.text = d.quantity.toString()
-                dispatchDetailMap.filter { it.productID == d.productID && it.returnability == d.returnability }.forEach {
-                    it.quantity = d.quantity
-                    it.subtotal = d.quantity.toDouble() * d.price
-                }
+                d.subtotal = d.quantity.toDouble() * d.price
                 updateTotal()
             }
-
         }
 
         layoutListItem.addView(v)
@@ -543,6 +643,13 @@ class SaleFragment : Fragment() {
         layoutPaymentList.removeView(view)
     }
 
+    private fun clearPaymentMethods() {
+        layoutPaymentList.removeAllViews()
+        paymentMethodList.clear()
+        updatePaymentMethodTotal()
+        editTextMethodPrice.setText("")
+    }
+
     private fun updatePaymentMethodTotal() {
         var total = 0.0
         paymentMethodList.forEach { (_, value) ->
@@ -557,8 +664,23 @@ class SaleFragment : Fragment() {
         val totalSale = textViewTotal.text.toString().toDouble()
 
         if (totalSale == payed ) {
+            // Validar que el texto del campo coincida con el cliente asignado
+            val currentText = clientAutoCompleteView.text.toString().trim()
+            if (currentText.isEmpty() || currentText != dispatch.clientName) {
+                Toast.makeText(globalContext, "Por favor seleccione un cliente válido.", Toast.LENGTH_SHORT).show()
+                return
+            }
 
             if(dispatch.clientID > 0){
+                // Validar que si hay crédito, el cliente no sea "CLIENTE VARIOS"
+                val hasCredit = paymentMethodList.containsKey("credit")
+                val isDefaultClient = dispatch.clientName.contains("CLIENTE VARIOS", ignoreCase = true)
+                
+                if (hasCredit && isDefaultClient) {
+                    Toast.makeText(globalContext, "No se puede vender al crédito con el cliente 'CLIENTE VARIOS'. Por favor seleccione otro cliente.", Toast.LENGTH_LONG).show()
+                    return
+                }
+                
                 dispatch.details = dispatchDetailMap
                 dispatch.paymentMethods = paymentMethodList
                 dispatch.status = "02"
@@ -628,13 +750,9 @@ class SaleFragment : Fragment() {
                                 }
                             }
 
-                            var searchDetail = dispatchDetailMap.filter { it.productID == model.productID && it.returnability == model.returnability }
-                            if (searchDetail.isEmpty()) {
-                                var totalQuantity = 0
-                                searchDetail = dispatchDetailMap.filter { it.productID == model.productID && it.quantity > 0 }
-                                searchDetail.forEach {totalQuantity += it.quantity}
-
-                                if (model.filledStock > 0 && totalQuantity < model.filledStock){
+                            // Solo permitir un producto a la vez
+                            if (dispatchDetailMap.isEmpty()) {
+                                if (model.filledStock > 0) {
                                     val newDetail = Dispatch.DispatchDetail()
                                     newDetail.productID = model.productID
                                     newDetail.productName = model.productName
@@ -659,7 +777,7 @@ class SaleFragment : Fragment() {
                                     Toast.makeText(globalContext,"Stock insuficiente", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
-                                Toast.makeText(globalContext, "Item ya agregado", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(globalContext, "Solo se puede vender un producto a la vez. Elimine el producto actual para seleccionar otro.", Toast.LENGTH_LONG).show()
                             }
                         }
                     })
