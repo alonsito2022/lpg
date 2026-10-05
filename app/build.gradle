@@ -1,13 +1,12 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'kotlin-android-extensions'
+//    id 'kotlin-android-extensions'
     id 'com.google.gms.google-services'  // Google Services plugin
-    id 'com.google.secrets_gradle_plugin' version '0.5'
 }
 
 android {
-    compileSdk 31
+    compileSdk 33
 //    testOptions {
 //        unitTests.all {
 //            it.enabled = false
@@ -15,10 +14,15 @@ android {
 //        // Si también quieres deshabilitar las pruebas instrumentadas (androidTest):
 ////        unitTests.returnDefaultValues = true
 //    }
+//    testOptions {
+//        unitTests.all {
+//            it.systemProperty 'android.package.override', 'com.example.driver'
+//        }
+//    }
     defaultConfig {
         applicationId "com.example.driver"
         minSdk 21
-        targetSdk 31
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -42,6 +46,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.example.driver'
 }
 
 dependencies {
