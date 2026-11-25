@@ -29,6 +29,9 @@ class Driver() {
     var error: Boolean = false
     var message: String = ""
 
+    // Token para el WebSocket de pedidos (ws/dispatches/driver/). Lo envía el login.
+    var wsToken: String = ""
+
     constructor(id: Int) : this() {
         this.driverID = id
     }

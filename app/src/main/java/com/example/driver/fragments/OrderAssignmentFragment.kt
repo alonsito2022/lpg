@@ -30,7 +30,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
-import android.os.CountDownTimer
+import com.example.driver.LocalDatabase.Preference
+import com.example.driver.service.DispatchSocket
 
 
 class OrderAssignmentFragment : Fragment() {
@@ -38,7 +39,6 @@ class OrderAssignmentFragment : Fragment() {
     private var globalContext: Context? = null
 
     lateinit var database: FirebaseDatabase
-    private lateinit var deliveryReference: DatabaseReference
     private lateinit var dispatchReference: DatabaseReference
     private lateinit var distributionReference: DatabaseReference
     private lateinit var vehicleReference: DatabaseReference
@@ -69,11 +69,15 @@ class OrderAssignmentFragment : Fragment() {
     private lateinit var editTextSearchDate: TextInputEditText
     private lateinit var btnSearch: Button
 
+    // Pedidos en tiempo real (reemplaza Firebase RTDB `deliveries`).
+    private var dispatchSocket: DispatchSocket? = null
+    private val reloadHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val reloadRunnable = Runnable { reloadDispatchLists() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         globalContext = this.activity
         database = FirebaseDatabase.getInstance()
-        deliveryReference = database.getReference("deliveries")
         dispatchReference = database.getReference("dispatches")
         distributionReference = database.getReference("distributions")
         vehicleReference = database.getReference("vehicles")
@@ -130,8 +134,47 @@ class OrderAssignmentFragment : Fragment() {
                 Toast.makeText(globalContext, "Elija fecha.", Toast.LENGTH_SHORT).show()
         }
 
-        searchDeliveries()
+        startDispatchSocket()
 
+    }
+
+    override fun onDestroyView() {
+        dispatchSocket?.stop()
+        dispatchSocket = null
+        reloadHandler.removeCallbacks(reloadRunnable)
+        super.onDestroyView()
+    }
+
+    private fun startDispatchSocket() {
+        val token = globalContext?.let { Preference(it).getData("wsToken") } ?: ""
+        if (token.isEmpty()) {
+            // Sesión iniciada con una versión anterior de la app: no tiene token.
+            Toast.makeText(globalContext,
+                "Cierre sesión y vuelva a ingresar para recibir pedidos en tiempo real",
+                Toast.LENGTH_LONG).show()
+            return
+        }
+        dispatchSocket = DispatchSocket(
+            token = token,
+            onDispatchEvent = { _, _ ->
+                // Varios eventos seguidos -> una sola recarga.
+                reloadHandler.removeCallbacks(reloadRunnable)
+                reloadHandler.postDelayed(reloadRunnable, 500)
+            },
+            onUnauthorized = {
+                Toast.makeText(globalContext,
+                    "Sesión vencida: vuelva a iniciar sesión para recibir pedidos en tiempo real",
+                    Toast.LENGTH_LONG).show()
+            },
+        ).also { it.start() }
+    }
+
+    private fun reloadDispatchLists() {
+        if (!isAdded) return
+        loadDispatchesAssignment()
+        loadDispatchesOutForDelivery()
+        loadDispatchesCompleted()
+        loadDispatchesAnnulled()
     }
 
     private fun showDatePickerDialog(){
@@ -190,62 +233,9 @@ class OrderAssignmentFragment : Fragment() {
 //                        dispatchReference.child(d.uid).child("distributionKey").setValue(driver.distributionKey)
 //                        dispatchReference.child(d.uid).child("identifier").setValue(newIdentifier)
 
-                        val newValues = hashMapOf<String, Any>(
-                            "status" to "04",
-                            "statusBg" to "success",
-                            "dispatchStatusDisplay" to "EN RUTA"
-                        )
-                        deliveryReference.child(d.dispatchID.toString()).updateChildren(newValues)
-                            .addOnSuccessListener {
-                                Toast.makeText(globalContext, "Pedido en ruta", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener { error ->
-                                println("Ocurrió un error al actualizar los valores: $error")
-                            }
-
-                        var automaticWatch: CountDownTimer? = null
-                        val duration = 600000  // 10 minutes
-                        val interval = 60000 // 1 minute
-                        var elapsedTime = 0
-
-                        automaticWatch = object : CountDownTimer(
-                            duration.toLong(),
-                            interval.toLong()
-                        ) {
-                            override fun onTick(millisUntilFinished: Long) {
-                                elapsedTime += interval
-                                val minutesElapsed = (elapsedTime / 60000).toInt()
-                                val orderNode = deliveryReference.child(d.dispatchID.toString())
-                                orderNode.addListenerForSingleValueEvent(object : ValueEventListener {
-                                    override fun onDataChange(snapshot: DataSnapshot) {
-                                        if (snapshot.exists()) {
-                                            orderNode.child("timer").setValue(minutesElapsed)
-                                        } else {
-                                            automaticWatch?.cancel()
-                                        }
-                                    }
-                                    override fun onCancelled(error: DatabaseError) {
-                                        println("Error al verificar la existencia del nodo: $error")
-                                    }
-                                })
-                            }
-
-                            override fun onFinish() {
-//                                deliveryReference.child(d.dispatchID.toString()).child("timer").setValue(10)
-//                                d.status = "03"
-//                                updateRestDispatch(d)
-                                val nodeReference = database.getReference("deliveries/${d.dispatchID}")
-                                nodeReference.removeValue()
-                                    .addOnSuccessListener {
-                                        Toast.makeText(globalContext, "Pedido desestimado", Toast.LENGTH_SHORT).show()
-                                    }
-                                    .addOnFailureListener { error ->
-                                        println("Ocurrió un error al eliminar el nodo: $error")
-                                    }
-                            }
-                        }
-
-                        automaticWatch.start()
+                        // El servidor marca on_route_at y avisa al tablero web por WebSocket;
+                        // ya no se escribe en Firebase `deliveries` ni se lleva el temporizador aquí.
+                        Toast.makeText(globalContext, "Pedido en ruta", Toast.LENGTH_SHORT).show()
 
                         btnSearch.callOnClick()
                     }
@@ -273,15 +263,8 @@ class OrderAssignmentFragment : Fragment() {
 //                            "statusBg" to "secondary",
 //                            "dispatchStatusDisplay" to "COMPLETADO"
 //                        )
-                        val nodeReference = database.getReference("deliveries/${d.dispatchID}")
-                        nodeReference.removeValue()
-                            .addOnSuccessListener {
-                                Toast.makeText(globalContext, "Pedido completado", Toast.LENGTH_SHORT).show()
-                                btnSearch.callOnClick()
-                            }
-                            .addOnFailureListener { error ->
-                                println("Ocurrió un error al eliminar el nodo: $error")
-                            }
+                        Toast.makeText(globalContext, "Pedido completado", Toast.LENGTH_SHORT).show()
+                        btnSearch.callOnClick()
 
 //                        updateFirebasePaymentMethod(d)
 //                        decreaseFirebaseFilledStock(d)
@@ -313,16 +296,8 @@ class OrderAssignmentFragment : Fragment() {
 
 //                        "dispatchStatusDisplay" to "ANULADO"
 //                    )
-                    val nodeReference = database.getReference("deliveries/${d.dispatchID}")
-                    nodeReference.removeValue()
-                        .addOnSuccessListener {
-                            println("El nodo se eliminó correctamente.")
-                            Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
-                            btnSearch.callOnClick()
-                        }
-                        .addOnFailureListener { error ->
-                            println("Ocurrió un error al eliminar el nodo: $error")
-                        }
+                    Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
+                    btnSearch.callOnClick()
 
                 }
                 "04" -> {
@@ -338,16 +313,8 @@ class OrderAssignmentFragment : Fragment() {
 //                        "statusBg" to "danger",
 //                        "dispatchStatusDisplay" to "ANULADO"
 //                    )
-                    val nodeReference = database.getReference("deliveries/${d.dispatchID}")
-                    nodeReference.removeValue()
-                        .addOnSuccessListener {
-                            println("El nodo se eliminó correctamente.")
-                            Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
-                            btnSearch.callOnClick()
-                        }
-                        .addOnFailureListener { error ->
-                            println("Ocurrió un error al eliminar el nodo: $error")
-                        }
+                    Toast.makeText(globalContext, "Pedido cancelado", Toast.LENGTH_SHORT).show()
+                    btnSearch.callOnClick()
                 }
             }
 
@@ -593,30 +560,6 @@ class OrderAssignmentFragment : Fragment() {
 
     }
 
-    private fun searchDeliveries(){
-        deliveryReference.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val productArrayList = ArrayList<Dispatch>()
-
-                for (productSnapshot in snapshot.children) {
-                    val dispatchTemp = productSnapshot.getValue(Dispatch::class.java)!!
-                    productArrayList.add(dispatchTemp)
-                }
-                val filterProductArrayList = productArrayList.filter { it.driverID == driverID }
-                Log.d("MIKE", "loadDispatches: ${filterProductArrayList.size}")
-                if(filterProductArrayList.isNotEmpty()){
-                    loadDispatchesAssignment()
-                    loadDispatchesOutForDelivery()
-                    loadDispatchesCompleted()
-                    loadDispatchesAnnulled()
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("MIKE", error.toException().toString())
-            }
-        })
-    }
 
     /*private fun getStock(vehicleKey: String = ""){
 

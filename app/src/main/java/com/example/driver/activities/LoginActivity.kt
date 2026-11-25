@@ -103,12 +103,15 @@ class LoginActivity : AppCompatActivity() {
                 if (response.body() != null) {
                     val driver: Driver = response.body()!!
 
-                    preference.saveData("driverID", driver.driverID.toString())
-                    preference.saveData("email", driver.email)
-                    preference.saveData("phone", driver.phone)
-                    preference.saveData("names", driver.names)
-                    preference.saveData("licensePlate", driver.vehicle.licensePlate)
                     if(!driver.error){
+                        // Guardar la sesión solo si las credenciales son válidas
+                        // (antes se guardaba driverID=0 aunque fallara el login).
+                        preference.saveData("driverID", driver.driverID.toString())
+                        preference.saveData("email", driver.email)
+                        preference.saveData("phone", driver.phone)
+                        preference.saveData("names", driver.names)
+                        preference.saveData("licensePlate", driver.vehicle.licensePlate)
+                        preference.saveData("wsToken", driver.wsToken)
                         startActivity(Intent(applicationContext, HomeActivity::class.java))
                         finish()
                     }else{
